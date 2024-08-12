@@ -3,33 +3,29 @@
 #include "dfa.h"
 
 int main() {
-    DFA dfa;
-    char filename[MAX_STRING_LEN];
-    char inputString[MAX_STRING_LEN];
+    DFA dfa;  // Configuracion del automata
+    char filename[tamString];
+    char inputString[tamString];
+
 
     printf("Ingrese el nombre del archivo de configuración: ");
     scanf("%s", filename);
 
-    // Cargar la configuración del DFA desde el archivo
-    loadDFAConfiguration(&dfa, filename);
+    cargarConfiguracion(&dfa, filename);
 
-    // Mostrar la configuración del DFA
-    printDFAConfiguration(&dfa);
+    printConfig(&dfa);
 
-    // Bucle para procesar múltiples cadenas
     while (1) {
         printf("Ingrese la cadena de entrada (o escriba 'salir' para terminar): ");
         scanf("%s", inputString);
 
-        // Verificar si el usuario quiere salir
         if (strcmp(inputString, "salir") == 0) {
             printf("Terminando el programa.\n");
             break;
         }
 
-        // Validar el alfabeto y procesar la cadena
-        if (validateAlphabet(&dfa, inputString)) {
-            if (processString(&dfa, inputString)) {
+        if (validarAlfabeto(&dfa, inputString)) {
+            if (procesarCadena(&dfa, inputString)) {
                 printf("Resultado: La cadena fue aceptada.\n");
             } else {
                 printf("Resultado: La cadena fue rechazada (No termina en un estado de aceptación).\n");

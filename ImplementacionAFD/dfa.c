@@ -3,51 +3,53 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Función para cargar la configuración del DFA desde un archivo
-void loadDFAConfiguration(DFA *dfa, const char *filename) {
+
+void cargarConfiguracion(DFA *dfa, const char *filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
         printf("No se pudo abrir el archivo de configuración.\n");
         exit(1);
     }
 
-    // Leer los estados
-    fgets(dfa->states[0], MAX_STRING_LEN, file);
-    dfa->numStates = 0;
-    char *token = strtok(dfa->states[0], ",\n");
+    fgets(dfa->states[0], tamString, file);
+    dfa->numStates = 0;  // Contador estados
+    char *token = strtok(dfa->states[0], ",\n");  // Divide la línea en tokens separados por comas y saltos de línea
     while (token) {
+        // Copia cada estado en el arreglo de estados y aumenta el contador
         strcpy(dfa->states[dfa->numStates++], token);
         token = strtok(NULL, ",\n");
     }
 
-    // Leer el alfabeto
-    fgets(dfa->alphabet, MAX_STRING_LEN, file);
-    dfa->numAlphabet = strlen(dfa->alphabet) - 1;  // Descontar el salto de línea
+    // Alfabeto
+    fgets(dfa->alphabet, tamString, file);
+    dfa->numAlphabet = strlen(dfa->alphabet) - 1;  // Numero de simbolos en el alfabeto
 
-    // Leer el estado inicial
-    fgets(dfa->initialState, MAX_STRING_LEN, file);
-    dfa->initialState[strcspn(dfa->initialState, "\n")] = '\0';  // Eliminar el salto de línea
+    // Estado inicial
+    fgets(dfa->initialState, tamString, file);
+    dfa->initialState[strcspn(dfa->initialState, "\n")] = '\0'; // Elimina el salto de linea al final del estado inicial
 
-    // Leer los estados de aceptación
-    fgets(dfa->acceptingStates[0], MAX_STRING_LEN, file);
-    dfa->numAcceptingStates = 0;
-    token = strtok(dfa->acceptingStates[0], ",\n");
+    // Estados aceptacion
+    fgets(dfa->estadoAceptacion[0], tamString, file);
+    dfa->numEstadosAceptacion = 0;
+    token = strtok(dfa->estadoAceptacion[0], ",\n");  // Divide la línea en tokens separados por comas y saltos de línea
     while (token) {
-        strcpy(dfa->acceptingStates[dfa->numAcceptingStates++], token);
-        token = strtok(NULL, ",\n");
+        // Copia cada estado de aceptación en el arreglo y aumenta el contador
+        strcpy(dfa->estadoAceptacion[dfa->numEstadosAceptacion++], token);
+        token = strtok(NULL, ",\n");  // Obtiene el siguiente token
     }
 
-    // Leer las transiciones
+    // Transiciones Automata
     dfa->numTransitions = 0;
-    while (fgets(dfa->transitions[dfa->numTransitions].currentState, MAX_STRING_LEN, file)) {
-        token = strtok(dfa->transitions[dfa->numTransitions].currentState, ",\n");
-        strcpy(dfa->transitions[dfa->numTransitions].currentState, token);
+    while (fgets(dfa->transitions[dfa->numTransitions].estadoActual, tamString, file)) {
+        
+        token = strtok(dfa->transitions[dfa->numTransitions].estadoActual, ",\n");  // Divide la línea en tokens separados por comas y saltos de línea
+        strcpy(dfa->transitions[dfa->numTransitions].estadoActual, token);  // Estado actual
 
         token = strtok(NULL, ",\n");
-        dfa->transitions[dfa->numTransitions].symbol = token[0];
+        dfa->transitions[dfa->numTransitions].entrySymbol = token[0];  // Símbolo de entrada
 
         token = strtok(NULL, ",\n");
-        strcpy(dfa->transitions[dfa->numTransitions].nextState, token);
+        strcpy(dfa->transitions[dfa->numTransitions].nextState, token);  // Estado siguiente
 
         dfa->numTransitions++;
     }
@@ -55,8 +57,12 @@ void loadDFAConfiguration(DFA *dfa, const char *filename) {
     fclose(file);
 }
 
-// Función para validar si una cadena pertenece al alfabeto del DFA
-int validateAlphabet(DFA *dfa, const char *inputString) {
+
+int validarAlfabeto(DFA *dfa, const char *inputString) {
+
+// Caracter valido = 1
+// Caracter no valido = 0
+
     for (int i = 0; inputString[i] != '\0'; i++) {
         int valid = 0;
         for (int j = 0; j < dfa->numAlphabet; j++) {
@@ -66,19 +72,18 @@ int validateAlphabet(DFA *dfa, const char *inputString) {
             }
         }
         if (!valid) {
-            return 0;  // Carácter no válido
+            return 0;
         }
     }
     return 1;
 }
 
-// Función para procesar una cadena en el DFA y mostrar las transiciones
-int processString(DFA *dfa, const char *inputString) {
-    char currentState[MAX_STRING_LEN];
-    strcpy(currentState, dfa->initialState);
+int procesarCadena(DFA *dfa, const char *inputString) {
+    char estadoActual[tamString];
+    strcpy(estadoActual, dfa->initialState);
 
     printf("\n--- Procesando la cadena '%s' ---\n", inputString);
-    printf("Estado inicial: %s\n", currentState);
+    printf("Estado inicial: %s\n", estadoActual);
 
     for (int i = 0; inputString[i] != '\0'; i++) {
         char currentChar = inputString[i];
@@ -86,11 +91,13 @@ int processString(DFA *dfa, const char *inputString) {
 
         printf("Procesando carácter '%c'\n", currentChar);
 
+        // Recorre todas las transiciones para encontrar una que coincida con el estado actual y el símbolo de entrada
         for (int j = 0; j < dfa->numTransitions; j++) {
-            if (strcmp(dfa->transitions[j].currentState, currentState) == 0 &&
-                dfa->transitions[j].symbol == currentChar) {
-                printf("Transición: %s --%c--> %s\n", currentState, currentChar, dfa->transitions[j].nextState);
-                strcpy(currentState, dfa->transitions[j].nextState);
+            if (strcmp(dfa->transitions[j].estadoActual, estadoActual) == 0 &&
+                dfa->transitions[j].entrySymbol == currentChar) {
+                // Mostramos transicion por transicion
+                printf("Transición: %s --%c--> %s\n", estadoActual, currentChar, dfa->transitions[j].nextState);
+                strcpy(estadoActual, dfa->transitions[j].nextState);
                 transitionFound = 1;
                 break;
             }
@@ -102,34 +109,34 @@ int processString(DFA *dfa, const char *inputString) {
         }
     }
 
-    for (int i = 0; i < dfa->numAcceptingStates; i++) {
-        if (strcmp(dfa->acceptingStates[i], currentState) == 0) {
-            printf("Estado final: %s (aceptado)\n", currentState);
+    // Verifica si el estado final es uno de los estados de aceptación
+    for (int i = 0; i < dfa->numEstadosAceptacion; i++) {
+        if (strcmp(dfa->estadoAceptacion[i], estadoActual) == 0) {
+            printf("Estado final: %s (aceptado)\n", estadoActual);
             printf("------------------------------\n");
             return 1;
         }
     }
 
-    printf("Estado final: %s (no aceptado)\n", currentState);
+    printf("Estado final: %s (no aceptado)\n", estadoActual);
     printf("------------------------------\n");
     return 0;
 }
 
-// Función para mostrar la configuración del DFA
-void printDFAConfiguration(DFA *dfa) {
+void printConfig(DFA *dfa) {
     printf("\n--- Configuración del DFA ---\n");
 
-    // Mostrar estados
+    // Lista de estados presentes en la configuracion subida
     printf("Estados: ");
     for (int i = 0; i < dfa->numStates; i++) {
         printf("%s", dfa->states[i]);
         if (i < dfa->numStates - 1) {
-            printf(", ");
+            printf(", "); 
         }
     }
     printf("\n");
 
-    // Mostrar alfabeto
+    // Mostrar el alfabeto
     printf("Alfabeto: ");
     for (int i = 0; i < dfa->numAlphabet; i++) {
         printf("%c", dfa->alphabet[i]);
@@ -139,23 +146,21 @@ void printDFAConfiguration(DFA *dfa) {
     }
     printf("\n");
 
-    // Mostrar estado inicial
     printf("Estado inicial: %s\n", dfa->initialState);
 
-    // Mostrar estados de aceptación
+
     printf("Estados de aceptación: ");
-    for (int i = 0; i < dfa->numAcceptingStates; i++) {
-        printf("%s", dfa->acceptingStates[i]);
-        if (i < dfa->numAcceptingStates - 1) {
+    for (int i = 0; i < dfa->numEstadosAceptacion; i++) {
+        printf("%s", dfa->estadoAceptacion[i]);
+        if (i < dfa->numEstadosAceptacion - 1) {
             printf(", ");
         }
     }
     printf("\n");
 
-    // Mostrar transiciones
     printf("Transiciones:\n");
     for (int i = 0; i < dfa->numTransitions; i++) {
-        printf("  %s --%c--> %s\n", dfa->transitions[i].currentState, dfa->transitions[i].symbol, dfa->transitions[i].nextState);
+        printf("  %s --%c--> %s\n", dfa->transitions[i].estadoActual, dfa->transitions[i].entrySymbol, dfa->transitions[i].nextState);
     }
     printf("------------------------------\n");
 }
