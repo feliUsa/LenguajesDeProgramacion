@@ -13,5 +13,5 @@ Andres Vasquez
 4. Ingresar a la carpeta AFDenC
 5. gcc -o 'nombreEjecutable' dfa.c main.c
 6. ./'nombreEjecutable'
-7. Ingresar el nombre de el archivo de configuracion para el automata finito determinista
-8. Probar ñas diferentes cadenas
+7. Ingresar el nombre de el archivo de configuración para el automata finito determinista
+8. Probar las diferentes cadenas
