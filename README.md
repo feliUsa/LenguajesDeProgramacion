@@ -17,7 +17,7 @@ Modificar el archivo txt para poder realizar combinaciones de caracteres
 
 1. flex contadorCaracteres.l
 2. gcc lex.yy.c -o palabras -lfl
-3. ./palabras
+3. ./palabras < txt
 
 ## Punto2
 
