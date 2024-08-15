@@ -8,32 +8,20 @@
 #define DIV 262
 #define ABS 263
 #define EOL 264
-
-void printToken(int token, const char* value) {
-    if (value) {
-        printf("%d = %s\n", token, value);
-    } else {
-        printf("%d\n", token);
-    }
-}
 %}
 
 %%
 
-[0-9]+            { printToken(NUMBER, yytext); }
-
-\+                { printToken(ADD, NULL); }
-\-                { printToken(SUB, NULL); }
-\*                { printToken(MUL, NULL); }
-\/                { printToken(DIV, NULL); }
-
-\|                { printToken(ABS, NULL); }
-
-\n                { printToken(EOL, NULL); }
-
+[0-9]+            { printf("NUMBER (%d) --> %s\n", NUMBER, yytext); }
+\+                { printf("ADD (%d) --> %s\n", ADD, yytext); }
+\-                { printf("SUB (%d) --> %s\n", SUB, yytext); }
+\*                { printf("MUL (%d) --> %s\n", MUL, yytext); }
+\/                { printf("DIV (%d) --> %s\n", DIV, yytext); }
+\|                { printf("ABS (%d) --> %s\n", ABS, yytext); }
+\n                { printf("EOL (%d) --> %s\n", EOL, yytext); }
 [ \t]             { /* Ignorar */ }
+.                 { printf("%s : Token no reconocible\n", yytext); }
 
-.                 { printf("%s = token no reconocible\n", yytext); }
 %%
 
 int main() {

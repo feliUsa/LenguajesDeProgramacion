@@ -454,16 +454,8 @@ char *yytext;
 #define DIV 262
 #define ABS 263
 #define EOL 264
-
-void printToken(int token, const char* value) {
-    if (value) {
-        printf("%d = %s\n", token, value);
-    } else {
-        printf("%d\n", token);
-    }
-}
-#line 466 "lex.yy.c"
-#line 467 "lex.yy.c"
+#line 458 "lex.yy.c"
+#line 459 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -680,10 +672,10 @@ YY_DECL
 		}
 
 	{
-#line 21 "reconocerTokens.l"
+#line 13 "reconocerTokens.l"
 
 
-#line 687 "lex.yy.c"
+#line 679 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -742,56 +734,56 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 23 "reconocerTokens.l"
-{ printToken(NUMBER, yytext); }
+#line 15 "reconocerTokens.l"
+{ printf("NUMBER (%d) --> %s\n", NUMBER, yytext); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 25 "reconocerTokens.l"
-{ printToken(ADD, NULL); }
+#line 16 "reconocerTokens.l"
+{ printf("ADD (%d) --> %s\n", ADD, yytext); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 26 "reconocerTokens.l"
-{ printToken(SUB, NULL); }
+#line 17 "reconocerTokens.l"
+{ printf("SUB (%d) --> %s\n", SUB, yytext); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 27 "reconocerTokens.l"
-{ printToken(MUL, NULL); }
+#line 18 "reconocerTokens.l"
+{ printf("MUL (%d) --> %s\n", MUL, yytext); }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 28 "reconocerTokens.l"
-{ printToken(DIV, NULL); }
+#line 19 "reconocerTokens.l"
+{ printf("DIV (%d) --> %s\n", DIV, yytext); }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 30 "reconocerTokens.l"
-{ printToken(ABS, NULL); }
+#line 20 "reconocerTokens.l"
+{ printf("ABS (%d) --> %s\n", ABS, yytext); }
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 32 "reconocerTokens.l"
-{ printToken(EOL, NULL); }
+#line 21 "reconocerTokens.l"
+{ printf("EOL (%d) --> %s\n", EOL, yytext); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 34 "reconocerTokens.l"
+#line 22 "reconocerTokens.l"
 { /* Ignorar */ }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 36 "reconocerTokens.l"
-{ printf("%s = token no reconocible\n", yytext); }
+#line 23 "reconocerTokens.l"
+{ printf("%s = Token no reconocible\n", yytext); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 37 "reconocerTokens.l"
+#line 25 "reconocerTokens.l"
 ECHO;
 	YY_BREAK
-#line 795 "lex.yy.c"
+#line 787 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1796,7 +1788,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 37 "reconocerTokens.l"
+#line 25 "reconocerTokens.l"
 
 
 int main() {
