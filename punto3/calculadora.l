@@ -1,5 +1,4 @@
 %{
-/* Código en C para incluir las librerías necesarias */
 #include <stdio.h>
 %}
 
