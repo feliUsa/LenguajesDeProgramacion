@@ -38,7 +38,7 @@ languaje         { printf("lenguaje "); }
 programming      { printf("programacion "); }
 
 [ \t\n]          { /* Ignorar espacios, tabulaciones y nuevas líneas */ }
-.                { printf("%s ", yytext); } /* Para cualquier palabra no reconocida, se deja sin traducir */
+.                { printf("%s ", yytext); } /* Si no reconoce la palabra, no se traduce */
 
 %%
 
