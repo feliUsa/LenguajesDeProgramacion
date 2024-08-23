@@ -2,7 +2,7 @@
 
 ---
 
-** Integrantes **
+**Integrantes**
 
 * Andres Vasquez
 * Daniel Oviedo
