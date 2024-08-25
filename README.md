@@ -15,11 +15,15 @@
 2. Descomprimir el archivo.zip
 3. En la terminal
     a. Ingresar a la carpeta Example_Bison
+   
     b. bison -d p1.y
+   
     c. flex p1.l
+   
     d. gcc p1.tab.c lex.yy.c -o nombreEjecutable -lfl
     ./nombreEjecutable
-4. Realizar las pruebas funcionales de la calculadora
+   
+5. Realizar las pruebas funcionales de la calculadora
 
 ---
 
