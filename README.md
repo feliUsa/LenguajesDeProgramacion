@@ -14,6 +14,7 @@
 1. Descargar el proyecto
 2. Descomprimir el archivo.zip
 3. En la terminal
+   
     a. Ingresar a la carpeta Example_Bison
    
     b. bison -d p1.y
