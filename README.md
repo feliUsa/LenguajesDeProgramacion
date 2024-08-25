@@ -22,9 +22,10 @@
     c. flex p1.l
    
     d. gcc p1.tab.c lex.yy.c -o nombreEjecutable -lfl
-    ./nombreEjecutable
 
-4. Realizar las pruebas funcionales de la calculadora
+    e. ./nombreEjecutable
+
+5. Realizar las pruebas funcionales de la calculadora
 
 
 
