@@ -756,7 +756,7 @@ case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
 #line 15 "p1.l"
-return yytext[0];
+{ return yytext[0]; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP

@@ -12,5 +12,5 @@ extern double vbltable[26];
 [a-z] { yylval.vblno = yytext[0] - 'a' ; return NAME; }
 "$" { return 0; }
 \n |
-.  return yytext[0];
+.  { return yytext[0]; }
 %%	

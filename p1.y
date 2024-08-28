@@ -34,6 +34,7 @@ expression: expression '+' expression {$$ = $1 + $3; }
 		}
 	| '-' expression %prec UNIMUS { $$ = -$2; }
 	| '(' expression ')'	{ $$ = $2; }
+	| '|' expression '|' { $$ = fabs($2); }
 	| NUMBER		{$$ = $1; }
 	| NAME			{$$ = vbltable[$1];}
 	;
