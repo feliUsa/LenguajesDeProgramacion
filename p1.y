@@ -1,5 +1,6 @@
- %{
+%{
 #include<stdio.h>
+#include<stdlib.h>
 double vbltable[26];
 %}
 
@@ -27,10 +28,12 @@ expression: expression '+' expression {$$ = $1 + $3; }
 	| expression '-' expression {$$ = $1 - $3; }
 	| expression '*' expression {$$ = $1 * $3; }
 	| expression '/' expression
-		 {	if($3 == 0)
-				yyerror("divide by zero");
-			else
-				$$ = $1 / $3; 
+		 {	if($3 == 0) {
+				 yyerror("divide by zero");
+				 exit(EXIT_FAILURE);
+			   } else {
+				 $$ = $1 / $3;
+			   }
 		}
 	| '-' expression %prec UNIMUS { $$ = -$2; }
 	| '(' expression ')'	{ $$ = $2; }
@@ -40,13 +43,14 @@ expression: expression '+' expression {$$ = $1 + $3; }
 	;
 %%
 extern FILE *yyin;
+
 main()
 {
 	yyparse();
 }
-yyerror(s)
-char *s;
-{
-	fprintf(stderr, "%s\n",s);
-}
 
+yyerror(char *s)
+{
+	fprintf(stderr, "Syntax error: %s\n", s);
+	exit(EXIT_FAILURE);
+}

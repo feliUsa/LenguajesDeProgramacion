@@ -70,9 +70,10 @@
 #line 1 "p1.y"
 
 #include<stdio.h>
+#include<stdlib.h>  /* Para usar exit() */
 double vbltable[26];
 
-#line 76 "p1.tab.c"
+#line 77 "p1.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -505,8 +506,8 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    20,    20,    21,    23,    24,    26,    27,    28,    29,
-      35,    36,    37,    38,    39
+       0,    21,    21,    22,    24,    25,    27,    28,    29,    30,
+      38,    39,    40,    41,    42
 };
 #endif
 
@@ -1082,77 +1083,79 @@ yyreduce:
   switch (yyn)
     {
   case 4: /* statement: NAME '=' expression  */
-#line 23 "p1.y"
+#line 24 "p1.y"
                                 { vbltable[(yyvsp[-2].vblno)] = (yyvsp[0].dval);}
-#line 1088 "p1.tab.c"
+#line 1089 "p1.tab.c"
     break;
 
   case 5: /* statement: expression  */
-#line 24 "p1.y"
+#line 25 "p1.y"
                      {printf("= %g\n",(yyvsp[0].dval));}
-#line 1094 "p1.tab.c"
+#line 1095 "p1.tab.c"
     break;
 
   case 6: /* expression: expression '+' expression  */
-#line 26 "p1.y"
+#line 27 "p1.y"
                                       {(yyval.dval) = (yyvsp[-2].dval) + (yyvsp[0].dval); }
-#line 1100 "p1.tab.c"
+#line 1101 "p1.tab.c"
     break;
 
   case 7: /* expression: expression '-' expression  */
-#line 27 "p1.y"
+#line 28 "p1.y"
                                     {(yyval.dval) = (yyvsp[-2].dval) - (yyvsp[0].dval); }
-#line 1106 "p1.tab.c"
+#line 1107 "p1.tab.c"
     break;
 
   case 8: /* expression: expression '*' expression  */
-#line 28 "p1.y"
+#line 29 "p1.y"
                                     {(yyval.dval) = (yyvsp[-2].dval) * (yyvsp[0].dval); }
-#line 1112 "p1.tab.c"
+#line 1113 "p1.tab.c"
     break;
 
   case 9: /* expression: expression '/' expression  */
-#line 30 "p1.y"
-                 {	if((yyvsp[0].dval) == 0)
-				yyerror("divide by zero");
-			else
-				(yyval.dval) = (yyvsp[-2].dval) / (yyvsp[0].dval); 
+#line 31 "p1.y"
+                 {	if((yyvsp[0].dval) == 0) {
+				 yyerror("divide by zero");
+				 exit(EXIT_FAILURE);  /* Termina la ejecución en caso de división por cero */
+			   } else {
+				 (yyval.dval) = (yyvsp[-2].dval) / (yyvsp[0].dval);
+			   }
 		}
-#line 1122 "p1.tab.c"
+#line 1125 "p1.tab.c"
     break;
 
   case 10: /* expression: '-' expression  */
-#line 35 "p1.y"
+#line 38 "p1.y"
                                       { (yyval.dval) = -(yyvsp[0].dval); }
-#line 1128 "p1.tab.c"
+#line 1131 "p1.tab.c"
     break;
 
   case 11: /* expression: '(' expression ')'  */
-#line 36 "p1.y"
+#line 39 "p1.y"
                                 { (yyval.dval) = (yyvsp[-1].dval); }
-#line 1134 "p1.tab.c"
+#line 1137 "p1.tab.c"
     break;
 
   case 12: /* expression: '|' expression '|'  */
-#line 37 "p1.y"
+#line 40 "p1.y"
                              { (yyval.dval) = fabs((yyvsp[-1].dval)); }
-#line 1140 "p1.tab.c"
+#line 1143 "p1.tab.c"
     break;
 
   case 13: /* expression: NUMBER  */
-#line 38 "p1.y"
+#line 41 "p1.y"
                                 {(yyval.dval) = (yyvsp[0].dval); }
-#line 1146 "p1.tab.c"
+#line 1149 "p1.tab.c"
     break;
 
   case 14: /* expression: NAME  */
-#line 39 "p1.y"
+#line 42 "p1.y"
                                 {(yyval.dval) = vbltable[(yyvsp[0].vblno)];}
-#line 1152 "p1.tab.c"
+#line 1155 "p1.tab.c"
     break;
 
 
-#line 1156 "p1.tab.c"
+#line 1159 "p1.tab.c"
 
       default: break;
     }
@@ -1345,16 +1348,17 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 41 "p1.y"
+#line 44 "p1.y"
 
 extern FILE *yyin;
+
 main()
 {
 	yyparse();
 }
-yyerror(s)
-char *s;
-{
-	fprintf(stderr, "%s\n",s);
-}
 
+yyerror(char *s)
+{
+	fprintf(stderr, "Syntax error: %s\n", s);
+	exit(EXIT_FAILURE);  /* Termina la ejecución en caso de error */
+}

@@ -65,7 +65,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 6 "p1.y"
+#line 7 "p1.y"
 
 	double dval;
 	int vblno;
