@@ -1,0 +1,10 @@
+env/
+__pycache__/
+Trig.interp
+Trig.tokens
+TrigLexer.interp
+TrigLexer.py
+TrigLexer.tokens
+TrigListener.py
+TrigParser.py
+TrigVisitor.py
