@@ -13,12 +13,12 @@ Analizador Lexico lenguajes de programación y transducción (Proyecto corte 1)
 
 1. Descargar el codigo
    
-  a. Descomprimir el archivo
+    a. Descomprimir el archivo
 
-  b. Ingresar a la carpeta
+    b. Ingresar a la carpeta
 
 3. Modificar el archivo entrada.py a gusto
    
-5. En la terminal
+4. En la terminal
    
-   a. python3 analizadorLexico.py entrada.py
+     a. python3 analizadorLexico.py entrada.py
