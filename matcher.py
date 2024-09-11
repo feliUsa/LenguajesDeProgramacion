@@ -1,6 +1,6 @@
 class Matcher:
     """
-    Clase que proporciona métodos para reconocer y categorizar tokens léxicos en código fuente de Python.
+    Clase que proporciona métodos para reconocer y categorizar tokens léxicos en codigo fuente de Python.
     """
     def __init__(self):
         """
@@ -107,7 +107,12 @@ class Matcher:
                 if pos + len(word) == len(text) or not self.is_identifier_part(text[pos + len(word)]):
                     return (word, word, pos + len(word))
 
-        # Verificar si es un identificador válido
+            # Si la palabra en minúsculas coincide pero la original tiene diferente capitalización
+            lowered_word = text[pos:pos+len(word)].lower()
+            if lowered_word == word and text[pos:pos+len(word)] != word:
+                return ('Error léxico', pos + 1)
+
+        # Verificar si es un identificador válido (si no coincide con una palabra reservada)
         if self.is_identifier_start(text[pos]):
             end = pos
             while end < len(text) and self.is_identifier_part(text[end]):
@@ -125,6 +130,8 @@ class Matcher:
 
         # Si no es un token válido, retornar None para indicar un error léxico
         return None
+
+
 
 
     def is_identifier_start(self, char):
