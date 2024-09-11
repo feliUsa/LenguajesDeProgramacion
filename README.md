@@ -21,4 +21,4 @@ Analizador Lexico lenguajes de programación y transducción (Proyecto corte 1)
    
 4. En la terminal
    
-     a. python3 analizadorLexico.py entrada.py
+     a. python3 analizadorLexico.py entrada.py salida.txt
