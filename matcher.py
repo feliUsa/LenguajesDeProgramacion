@@ -79,15 +79,26 @@ class Matcher:
             end += 1  # Incluir la comilla de cierre
             return ('tk_cadena', text[pos:end], end)
 
-        # Verificar si es un número (entero o decimal)
-        if text[pos].isdigit() or (text[pos] == '.' and pos + 1 < len(text) and text[pos + 1].isdigit()):
+        # Verificar si es un número (entero o decimal fragmentado)
+        if text[pos].isdigit():
             end = pos
-            decimal_found = False
-            while end < len(text) and (text[end].isdigit() or (text[end] == '.' and not decimal_found)):
-                if text[end] == '.':
-                    decimal_found = True
-                end += 1
-            return ('tk_entero', text[pos:end], end)
+            tokens = []
+            while end < len(text):
+                if text[end].isdigit():
+                    end += 1
+                elif text[end] == '.':
+                    # Detectar un punto (.) como token separado
+                    tokens.append(('tk_entero', text[pos:end], pos + 1))
+                    tokens.append(('tk_punto', '.', end + 1))
+                    pos = end + 1
+                    end = pos
+                else:
+                    break
+
+            if pos != end:
+                tokens.append(('tk_entero', text[pos:end], pos + 1))
+            if tokens:
+                return tokens[0]  # Retornar el primer token, se maneja uno por uno
 
         # Verificar si es una palabra reservada
         for word in self.reserved_words:
@@ -108,8 +119,13 @@ class Matcher:
             if text.startswith(pattern, pos):
                 return (token_type, pattern, pos + len(pattern))
 
+        # Si encuentra un carácter no válido (ej. '¬')
+        if not self.is_identifier_part(text[pos]) and not text[pos].isspace():
+            return ('Error léxico', pos + 1)
+
         # Si no es un token válido, retornar None para indicar un error léxico
         return None
+
 
     def is_identifier_start(self, char):
         """

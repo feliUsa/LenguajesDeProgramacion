@@ -41,3 +41,5 @@ def decorador(func):
         print("Llamada decorada")
         return func(*args, **kwargs)
     return wrapper
+
+# 2.5598055while3!=88¬56.a
