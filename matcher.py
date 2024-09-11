@@ -19,6 +19,7 @@ class Matcher:
             ('tk_par_der', ')'),
             ('tk_dos_puntos', ':'),
             ('tk_asig', '='),
+            ('tk_comparacion', '=='),
             ('tk_punto', '.'),
             ('tk_coma', ','),
             ('tk_sum', '+'),
@@ -28,7 +29,7 @@ class Matcher:
             ('tk_div', '/'),
             ('tk_divent', '//'),
             ('tk_porc', '%'),
-            ('tk_excl', '!'),
+            ('tk_distinto', '!='),
             ('tk_ejecuta', '->'),
             ('tk_menor', '>'),
             ('tk_mayor', '<'),
@@ -86,35 +87,29 @@ class Matcher:
                 if text[end] == '.':
                     decimal_found = True
                 end += 1
-            return ('tk_number', text[pos:end], end)
+            return ('tk_entero', text[pos:end], end)
 
         # Verificar si es una palabra reservada
         for word in self.reserved_words:
-            # Compara la palabra original exactamente con la reservada
             if text.startswith(word, pos):
+                # Asegurarse de que la palabra reservada no es parte de un identificador más largo
                 if pos + len(word) == len(text) or not self.is_identifier_part(text[pos + len(word)]):
                     return (word, word, pos + len(word))
-            
-            # Si la palabra en minúsculas coincide pero la original tiene diferente capitalización
-            if text[pos:pos+len(word)].lower() == word:
-                return ('Error léxico', pos + 1)
 
-        # Verificar si es un operador lógico o símbolo
-        for token_type, pattern in self.token_patterns:
-            if text.startswith(pattern, pos):
-                return (token_type, pattern, pos + len(pattern))
-
-        # Verificar si es un identificador
+        # Verificar si es un identificador válido
         if self.is_identifier_start(text[pos]):
             end = pos
             while end < len(text) and self.is_identifier_part(text[end]):
                 end += 1
             return ('id', text[pos:end], end)
 
+        # Verificar si es un operador lógico o símbolo
+        for token_type, pattern in self.token_patterns:
+            if text.startswith(pattern, pos):
+                return (token_type, pattern, pos + len(pattern))
+
         # Si no es un token válido, retornar None para indicar un error léxico
         return None
-
-
 
     def is_identifier_start(self, char):
         """

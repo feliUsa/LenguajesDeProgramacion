@@ -2,17 +2,6 @@ import sys
 from matcher import Matcher
 
 def tokenize_line(line, line_num, matcher):
-    """
-    Tokeniza una línea de texto utilizando la instancia de `Matcher`.
-
-    Args:
-        line (str): La línea de código a tokenizar.
-        line_num (int): El número de línea actual.
-        matcher (Matcher): Instancia de la clase Matcher utilizada para encontrar los tokens.
-
-    Returns:
-        list: Una lista de tuplas representando los tokens encontrados o errores léxicos.
-    """
     tokens = []
     pos = 0
 
@@ -29,19 +18,24 @@ def tokenize_line(line, line_num, matcher):
                 break  # Detener la tokenización en cuanto haya un error léxico
             elif len(match) == 3:  # Caso estándar
                 token_type, text, new_pos = match
+
+                # Ignorar los comentarios en la salida
+                if token_type == 'tk_comment':
+                    break  # Ignorar el resto de la línea si es un comentario
+                
                 # Si es una palabra reservada
                 if token_type in matcher.reserved_words:
                     tokens.append((token_type, line_num, pos + 1))
                 else:
                     tokens.append((token_type, text, line_num, pos + 1))
+                
                 pos = new_pos
             else:
                 tokens.append(('Error léxico', line_num, pos + 1))
                 break
         else:
-            # Si no se encuentra un token válido, reportar un error léxico
             tokens.append(('Error léxico', line_num, pos + 1))
-            break  # Detener la tokenización de esta línea y proceder con la siguiente
+            break
 
     return tokens
 
