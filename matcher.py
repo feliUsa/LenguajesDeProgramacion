@@ -49,6 +49,7 @@ class Matcher:
         Returns:
             tuple or None: Una tupla con información del token si se encuentra, o None si no.
         """
+        
         # Verificar si es un comentario
         if text[pos] == '#':
             return ('tk_comment', text[pos:], len(text))  # Reconoce como comentario
@@ -87,10 +88,16 @@ class Matcher:
                 end += 1
             return ('tk_number', text[pos:end], end)
 
-        # Verificar si es una palabra reservada (case-sensitive)
+        # Verificar si es una palabra reservada
         for word in self.reserved_words:
-            if text.startswith(word, pos) and (pos + len(word) == len(text) or not self.is_identifier_part(text[pos + len(word)])):
-                return (word, word, pos + len(word))
+            # Compara la palabra original exactamente con la reservada
+            if text.startswith(word, pos):
+                if pos + len(word) == len(text) or not self.is_identifier_part(text[pos + len(word)]):
+                    return (word, word, pos + len(word))
+            
+            # Si la palabra en minúsculas coincide pero la original tiene diferente capitalización
+            if text[pos:pos+len(word)].lower() == word:
+                return ('Error léxico', pos + 1)
 
         # Verificar si es un operador lógico o símbolo
         for token_type, pattern in self.token_patterns:
@@ -106,6 +113,8 @@ class Matcher:
 
         # Si no es un token válido, retornar None para indicar un error léxico
         return None
+
+
 
     def is_identifier_start(self, char):
         """
