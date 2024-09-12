@@ -17,7 +17,6 @@ class Animal(object):
     def sound(self: "Cow") -> str:
         return "moo"
 
-
 c: Animal = None
 c = Cow()
 c.make_noise()          # Prints "moo"

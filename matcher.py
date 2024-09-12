@@ -10,7 +10,7 @@ class Matcher:
             'False', 'None', 'True', 'and', 'as', 'assert', 'break', 'class', 
             'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 
             'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 
-            'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield', 'AssertionError'
+            'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield'
         }
         self.token_patterns = [
             ('tk_and_sym', '&&'),
@@ -50,13 +50,6 @@ class Matcher:
         Returns:
             tuple or None: Una tupla con información del token si se encuentra, o None si no.
         """
-        
-        # Ignorar espacios en blanco
-        while pos < len(text) and text[pos].isspace():
-            pos += 1
-
-        if pos >= len(text):
-            return None
         
         # Verificar si es un comentario
         if text[pos] == '#':
@@ -114,12 +107,7 @@ class Matcher:
                 if pos + len(word) == len(text) or not self.is_identifier_part(text[pos + len(word)]):
                     return (word, word, pos + len(word))
 
-            # Si la palabra en minúsculas coincide pero la original tiene diferente capitalización
-            lowered_word = text[pos:pos+len(word)].lower()
-            if lowered_word == word and text[pos:pos+len(word)] != word:
-                return ('Error léxico', pos + 1)
-
-        # Verificar si es un identificador válido (si no coincide con una palabra reservada)
+        # Verificar si es un identificador válido
         if self.is_identifier_start(text[pos]):
             end = pos
             while end < len(text) and self.is_identifier_part(text[end]):
@@ -137,7 +125,6 @@ class Matcher:
 
         # Si no es un token válido, retornar None para indicar un error léxico
         return None
-
 
 
 
@@ -164,3 +151,4 @@ class Matcher:
             bool: True si el carácter es válido como parte de un identificador, False en caso contrario.
         """
         return char.isalnum() or char == '_'
+
