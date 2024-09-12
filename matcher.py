@@ -1,6 +1,6 @@
 class Matcher:
     """
-    Clase que proporciona métodos para reconocer y categorizar tokens léxicos en codigo fuente de Python.
+    Clase que proporciona métodos para reconocer y categorizar tokens léxicos en código fuente de Python.
     """
     def __init__(self):
         """
@@ -10,7 +10,7 @@ class Matcher:
             'False', 'None', 'True', 'and', 'as', 'assert', 'break', 'class', 
             'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 
             'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 
-            'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield'
+            'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield', 'AssertionError'
         }
         self.token_patterns = [
             ('tk_and_sym', '&&'),
@@ -50,6 +50,13 @@ class Matcher:
         Returns:
             tuple or None: Una tupla con información del token si se encuentra, o None si no.
         """
+        
+        # Ignorar espacios en blanco
+        while pos < len(text) and text[pos].isspace():
+            pos += 1
+
+        if pos >= len(text):
+            return None
         
         # Verificar si es un comentario
         if text[pos] == '#':

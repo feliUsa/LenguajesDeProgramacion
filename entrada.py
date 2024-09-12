@@ -1,45 +1,24 @@
-# Comentario de ejemplo
-False
-None
-True
+class Animal(object):
+    makes_noise: bool = False
 
-def funcion_ejemplo():
-    global x
-    x = 0
-    while x < 5:
-        if x == 2:
-            continue
-        elif x == 4:
-            break
-        else:
-            x += 1
+    def make_noise(self: "Animal") -> object:
+        if (self.makes_noise):
+            print(self.sound())
 
-try:
-    import math as m
-    assert m.sqrt(4) == 2
-except AssertionError:
-    pass
-finally:
-    print("Prueba finalizada")
+    def sound(self: "Animal") -> str:
+        return "???"
 
-class MiClase:
-    def __init__(self):
-        self.valor = lambda: 'valor de ejemplo'
 
-    def metodo(self):
-        with open('archivo.txt', 'w') as f:
-            f.write('Contenido')
+    class Cow(Animal):
+        def __init__(self: "Cow"):
 
-for i in range(3):
-    print(i)
+            self.makes_noise = True
+    
+    def sound(self: "Cow") -> str:
+        return "moo"
 
-x = [1, 2, 3]
-y = [n * 2 for n in x if n > 1]
 
-def decorador(func):
-    def wrapper(*args, **kwargs):
-        print("Llamada decorada")
-        return func(*args, **kwargs)
-    return wrapper
-
+c: Animal = None
+c = Cow()
+c.make_noise()          # Prints "moo"
 # 2.5598055while3!=88¬56.a
