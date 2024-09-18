@@ -1,0 +1,6 @@
+S -> NP VP
+NP -> Det Noun
+VP -> Verb NP
+Det -> a | the
+Noun -> cat | dog
+Verb -> chases | sees
