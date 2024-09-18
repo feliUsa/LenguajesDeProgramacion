@@ -24,4 +24,4 @@
 
      a. pip install matplotlib
 
-4. python3 analizadorLexico.py
+4. python3 leergramatica.py
