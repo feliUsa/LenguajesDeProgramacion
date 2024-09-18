@@ -16,6 +16,12 @@
 
 1. Descargar y descomprimir el archivo
 
-2. Tener instalado
+2. Tener instalado NetworkX
 
-3. 
+     a. pip install networkx
+
+3. Tener instalado matplotlib
+
+     a. pip install matplotlib
+
+4. python3 analizadorLexico.py
