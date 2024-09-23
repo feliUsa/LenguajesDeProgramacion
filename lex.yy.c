@@ -445,9 +445,9 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "p1.l"
-#line 2 "p1.l"
-#include "p1.tab.h"
+#line 1 "gramaticaParentesis.l"
+#line 2 "gramaticaParentesis.l"
+#include "gramaticaParentesis.tab.h"
 #include <math.h>
 extern double vbltable[26];
 #line 454 "lex.yy.c"
@@ -668,7 +668,7 @@ YY_DECL
 		}
 
 	{
-#line 7 "p1.l"
+#line 7 "gramaticaParentesis.l"
 
 #line 674 "lex.yy.c"
 
@@ -729,38 +729,38 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 8 "p1.l"
+#line 8 "gramaticaParentesis.l"
 {
-	yylval.dval = atof(yytext); return NUMBER;
-	}
+    yylval.dval = atof(yytext); return NUMBER;
+    }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 11 "p1.l"
-;
+#line 11 "gramaticaParentesis.l"
+;  /* Ignorar espacios y tabs */
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 12 "p1.l"
-{ yylval.vblno = yytext[0] - 'a' ; return NAME; }
+#line 12 "gramaticaParentesis.l"
+{ yylval.vblno = yytext[0] - 'a'; return NAME; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 13 "p1.l"
-{ return 0; }
+#line 13 "gramaticaParentesis.l"
+{ return 0; }  /* Fin de entrada */
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
-#line 15 "p1.l"
+#line 15 "gramaticaParentesis.l"
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 15 "p1.l"
-{ return yytext[0]; }
+#line 15 "gramaticaParentesis.l"
+{ return yytext[0]; }  /* Otros caracteres */
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 16 "p1.l"
+#line 16 "gramaticaParentesis.l"
 ECHO;
 	YY_BREAK
 #line 767 "lex.yy.c"
@@ -1768,6 +1768,10 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 16 "p1.l"
+#line 16 "gramaticaParentesis.l"
 
+
+int yywrap() {
+    return 1;
+}
 

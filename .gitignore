@@ -1,2 +1,16 @@
 .vscode/
 .DS_Store
+cal/
+prueba/
+
+# Archivos generados por Bison
+*.tab.c
+*.tab.h
+
+# Archivo generado por Flex
+lex.yy.c
+
+# Ejecutables
+calculadoraNormal
+calculadoraInversa
+calculadoraParentesis
