@@ -15,10 +15,12 @@ def leer_gramatica(archivo):
                 producciones = [p.strip() for p in parte_derecha.split('|')]
                 if parte_izquierda not in reglas_produccion:
                     reglas_produccion[parte_izquierda] = []
-                reglas_produccion[parte_izquierda].extend(producciones)
                 for prod in producciones:
+                    # Reemplazar ' ' (comillas simples con espacio) por un espacio real
+                    prod = prod.replace("' '", " ")
+                    reglas_produccion[parte_izquierda].append(prod)
                     for simbolo in prod:
-                        if simbolo.islower():
+                        if simbolo.islower() or simbolo == " ":
                             terminales.add(simbolo)
     return reglas_produccion, terminales
 
@@ -61,7 +63,8 @@ def verificar_cadena(cadena, reglas_produccion):
         encontrado = False
         for var in reglas_produccion:
             for regla in reglas_produccion[var]:
-                if regla == simbolo:  # Si encontramos una regla que genera el símbolo
+                # Ajustamos para comparar correctamente con un espacio literal
+                if regla == simbolo or (simbolo == " " and regla == " "):
                     reglas_usadas.append((i, var, simbolo))
                     encontrado = True
                     break
