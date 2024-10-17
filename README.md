@@ -8,13 +8,23 @@ Instalar requerimientos necesarios para el funcionamiento del codigo
 
 * pip install requirements.txt
 
+Instalar la ultima version de antlr (en caso de no tenerla descargada o que no se descargue junto al codigo)
+
+* curl -O https://www.antlr.org/download/antlr-4.13.2-complete.jar
+
 ## Punto 1
 
 En terminal
 
 * antlr4 -Dlanguage=Python3 -visitor Calc.g4
 
-* python3 calculadora.py
+* java ruta/completa/al/-jar antlr-4.13.2-complete.jar -Dlanguage=Python3 -visitor complejos.g4 
+
+    * Para encontrar la ruta completa al jar
+
+        * En vscode: click derecho, "copiar ruta" (Alt + Ctrl + C)
+
+* python3 calculadoraComplejos.py
 
 Ingresar operacion a realizar
 
