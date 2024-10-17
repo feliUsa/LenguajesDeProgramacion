@@ -2,15 +2,26 @@ grammar transformadas;
 
 program: expr EOF;
 
-expr: 'fourier(' array ',' NUMBER ')' # FourierTransform
-    | 'inversa(' array ',' NUMBER ')' # InverseFourierTransform;
+expr: 'fourier(' array ',' NUMBER ')'           # FourierTransform
+    | 'inversa(' array ',' NUMBER ')'           # InverseFourierTransform
+    | 'pulsoRectangular(' NUMBER ')'            # PulsoRectangular
+    | 'pulsoTriangular(' NUMBER ')'             # PulsoTriangular
+    | 'signum()'                                # Signum
+    | 'deltaDirac()'                            # DeltaDirac
+    | 'cos(' NUMBER ')'                         # Cos
+    | 'sin(' NUMBER ')'                         # Sin;
 
-array: '[' elements ']'  # ArrayExpr;
+array: '[' elements ']'                         # ArrayExpr;
 
-elements: complexNumber (',' complexNumber)*;  // Lista de números complejos separados por comas
+elements: complexNumber (',' complexNumber)*;   // Lista de números complejos separados por comas
 
-complexNumber: NUMBER ('+' | '-') NUMBER 'i'?;  // Definir un número complejo
+// Definir correctamente un número complejo, soportando números negativos
+complexNumber: realPart imaginaryPart?;
 
-NUMBER: [0-9]+ ('.' [0-9]+)?;  // Números enteros o decimales
+realPart: ('-' | '+')? NUMBER;   // Parte real opcional (puede ser positiva o negativa)
 
-WS: [ \t\r\n]+ -> skip;  // Ignorar espacios en blanco
+imaginaryPart: ('+' | '-') NUMBER 'i';  // Parte imaginaria con signo
+
+NUMBER: [0-9]+ ('.' [0-9]+)?;          // Números enteros o decimales
+
+WS: [ \t\r\n]+ -> skip;                // Ignorar espacios en blanco

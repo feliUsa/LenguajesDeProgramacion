@@ -1,4 +1,5 @@
 import cmath
+import numpy as np
 from antlr4 import *
 from transformadasLexer import transformadasLexer
 from transformadasParser import transformadasParser
@@ -23,6 +24,29 @@ def inverse_fourier_transform(array, N):
         ) / N
         for n in range(N)
     ]
+
+# Función pulso rectangular
+def pulso_rectangular_fourier(T, omega):
+    return T * np.sinc(T * omega / (2 * np.pi))
+
+# Función pulso triangular
+def pulso_triangular_fourier(T, omega):
+    return T * (np.sinc(T * omega / (2 * np.pi)) ** 2)
+
+# Función signum
+def signum_fourier(omega):
+    return 2 / (1j * omega)
+
+# Delta de Dirac
+def delta_dirac_fourier(omega):
+    return 1
+
+# Funciones seno y coseno
+def cos_fourier(omega, omega_0):
+    return np.pi * (delta_dirac_fourier(omega - omega_0) + delta_dirac_fourier(omega + omega_0))
+
+def sin_fourier(omega, omega_0):
+    return np.pi * 1j * (delta_dirac_fourier(omega - omega_0) - delta_dirac_fourier(omega + omega_0))
 
 class FourierEvalVisitor(transformadasVisitor):
     def visitFourierTransform(self, ctx):
@@ -54,6 +78,87 @@ class FourierEvalVisitor(transformadasVisitor):
         print("Transformada Inversa de Fourier (limpia):")
         self.mostrar_transformada(inverse_fourier_result)
         return inverse_fourier_result
+
+    # Pulso Rectangular
+    def visitPulsoRectangular(self, ctx):
+        T = float(ctx.NUMBER().getText())
+        omega = np.linspace(-10, 10, 1000)  # Definir un rango para omega
+        result = pulso_rectangular_fourier(T, omega)
+
+        # Si el resultado no es iterable, lo mostramos directamente
+        if not isinstance(result, (list, np.ndarray)):
+            print(f"Resultado: {result}")
+        else:
+            self.mostrar_transformada(result)
+
+        return result
+
+    # Pulso Triangular
+    def visitPulsoTriangular(self, ctx):
+        T = float(ctx.NUMBER().getText())
+        omega = np.linspace(-10, 10, 1000)
+        result = pulso_triangular_fourier(T, omega)
+
+        # Si el resultado no es iterable, lo mostramos directamente
+        if not isinstance(result, (list, np.ndarray)):
+            print(f"Resultado: {result}")
+        else:
+            self.mostrar_transformada(result)
+
+        return result
+
+    # Signum
+    def visitSignum(self, ctx):
+        omega = np.linspace(-10, 10, 1000)
+        result = signum_fourier(omega)
+
+        # Si el resultado no es iterable, lo mostramos directamente
+        if not isinstance(result, (list, np.ndarray)):
+            print(f"Resultado: {result}")
+        else:
+            self.mostrar_transformada(result)
+
+        return result
+
+    # Delta de Dirac
+    def visitDeltaDirac(self, ctx):
+        omega = np.linspace(-10, 10, 1000)
+        result = delta_dirac_fourier(omega)
+
+        # Si el resultado no es iterable, lo mostramos directamente
+        if not isinstance(result, (list, np.ndarray)):
+            print(f"Resultado: {result}")
+        else:
+            self.mostrar_transformada(result)
+
+        return result
+
+    def visitCos(self, ctx):
+        omega_0 = float(ctx.NUMBER().getText())
+        omega = np.linspace(-10, 10, 1000)
+        result = cos_fourier(omega, omega_0)
+
+        # Si `result` no es iterable, lo mostramos directamente
+        if not isinstance(result, (list, np.ndarray)):
+            print(f"Resultado: {result}")
+        else:
+            self.mostrar_transformada(result)
+
+        return result
+
+    def visitSin(self, ctx):
+        omega_0 = float(ctx.NUMBER().getText())
+        omega = np.linspace(-10, 10, 1000)
+        result = sin_fourier(omega, omega_0)
+
+        # Si el resultado no es iterable, lo mostramos directamente
+        if not isinstance(result, (list, np.ndarray)):
+            print(f"Resultado: {result}")
+        else:
+            self.mostrar_transformada(result)
+
+        return result
+
 
     def visitArrayExpr(self, ctx):
         # Extraer los elementos del array como una lista de números complejos

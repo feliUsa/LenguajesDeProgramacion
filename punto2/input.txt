@@ -1,2 +1,2 @@
-MAP(square, numeros)
-FILTER(even, numeros)
+MAP(double, numList)
+FILTER(reverseSort, numList)
