@@ -18,11 +18,7 @@ En terminal
 
 * antlr4 -Dlanguage=Python3 -visitor Calc.g4
 
-* java ruta/completa/al/-jar antlr-4.13.2-complete.jar -Dlanguage=Python3 -visitor complejos.g4 
-
-    * Para encontrar la ruta completa al jar
-
-        * En vscode: click derecho, "copiar ruta" (Alt + Ctrl + C)
+* java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 -visitor complejos.g4 
 
 * python3 calculadoraComplejos.py
 
