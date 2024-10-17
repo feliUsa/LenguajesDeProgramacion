@@ -2,16 +2,16 @@ grammar complejos;
 
 program: expr EOF;
 
-expr: expr '+' term   # Add
-    | expr '-' term   # Subtract
-    | term            # SingleTerm
+expr: expr '+' term
+    | expr '-' term
+    | term
     ;
 
 term: factor;
 
-factor: '(' expr ')'   # Parentheses
-      | complexNumber  # ComplexExpr
-      | NUMBER         # RealNumber
+factor: '(' expr ')'
+      | complexNumber
+      | NUMBER
       ;
 
 complexNumber: NUMBER? ('+'|'-')? NUMBER 'i';  // Imaginarios

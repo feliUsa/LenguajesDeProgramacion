@@ -31,7 +31,6 @@ class visitorClass(complejosVisitor):
                 numComp = float(components.strip())
             else:
                 numReal = float(components.strip())
-
         return complex(numReal, numComp)
 
     def visitRealNumber(self, ctx):
