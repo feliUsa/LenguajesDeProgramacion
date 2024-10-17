@@ -2,11 +2,14 @@ grammar transformadas;
 
 program: expr EOF;
 
-expr: 'fourier(' array ',' NUMBER ')' # FourierTransform;
+expr: 'fourier(' array ',' NUMBER ')' # FourierTransform
+    | 'inversa(' array ',' NUMBER ')' # InverseFourierTransform;
 
 array: '[' elements ']'  # ArrayExpr;
 
-elements: NUMBER (',' NUMBER)*;  // Lista de números separados por comas
+elements: complexNumber (',' complexNumber)*;  // Lista de números complejos separados por comas
+
+complexNumber: NUMBER ('+' | '-') NUMBER 'i'?;  // Definir un número complejo
 
 NUMBER: [0-9]+ ('.' [0-9]+)?;  // Números enteros o decimales
 

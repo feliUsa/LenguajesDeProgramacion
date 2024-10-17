@@ -4,65 +4,99 @@ from transformadasLexer import transformadasLexer
 from transformadasParser import transformadasParser
 from transformadasVisitor import transformadasVisitor
 
+# Función pura: transformada de Fourier
+def fourier_transform(array, N):
+    return [
+        sum(
+            x_n * cmath.exp(-2j * cmath.pi * k * n / N)
+            for n, x_n in enumerate(array)
+        )
+        for k in range(N)
+    ]
+
+# Función pura: transformada inversa de Fourier
+def inverse_fourier_transform(array, N):
+    return [
+        sum(
+            X_k * cmath.exp(2j * cmath.pi * k * n / N)
+            for k, X_k in enumerate(array)
+        ) / N
+        for n in range(N)
+    ]
+
 class FourierEvalVisitor(transformadasVisitor):
     def visitFourierTransform(self, ctx):
         print("Transformada de Fourier")
         array = self.visit(ctx.array())
-        N = int(ctx.NUMBER().getText())
         
-        # Calculamos la Transformada de Fourier Discreta
-        fourier_result = self.fourier_transform(array, N)
+        N = int(ctx.NUMBER().getText()) if ctx.NUMBER() else None
+        if N is None:
+            raise ValueError("Error: No se pudo obtener el número de puntos para la transformada.")
+        
+        # Usamos la función pura para calcular la Transformada de Fourier
+        fourier_result = fourier_transform(array, N)
         
         print("Transformada de Fourier (limpia):")
-        self.mostrar_transformada(fourier_result)  # Mostrar en formato limpio
-        return fourier_result  # Devolver el resultado final
+        self.mostrar_transformada(fourier_result)
+        return fourier_result
+
+    def visitInverseFourierTransform(self, ctx):
+        print("Transformada Inversa de Fourier")
+        array = self.visit(ctx.array())
+        
+        N = int(ctx.NUMBER().getText()) if ctx.NUMBER() else None
+        if N is None:
+            raise ValueError("Error: No se pudo obtener el número de puntos para la transformada inversa.")
+        
+        # Usamos la función pura para calcular la Transformada Inversa de Fourier
+        inverse_fourier_result = inverse_fourier_transform(array, N)
+        
+        print("Transformada Inversa de Fourier (limpia):")
+        self.mostrar_transformada(inverse_fourier_result)
+        return inverse_fourier_result
 
     def visitArrayExpr(self, ctx):
-        # Extraer los elementos del array como una lista de números
-        elements = [float(num.getText()) for num in ctx.elements().NUMBER()]
+        # Extraer los elementos del array como una lista de números complejos
+        elements = [self.convertir_a_complejo(num.getText()) for num in ctx.elements().complexNumber()]
         print(f"Entrada: {elements}")
         return elements
 
-    def fourier_transform(self, array, N):
-        result = []
-        for k in range(N):
-            sum_val = 0
-            for n, x_n in enumerate(array):
-                angle = -2 * cmath.pi * k * n / N
-                sum_val += x_n * cmath.exp(1j * angle)  # Expresión de Fourier
-            result.append(sum_val)
-        return result
+    def convertir_a_complejo(self, texto):
+        try:
+            # Función pura: convertir texto en número complejo
+            return complex(texto.replace('i', 'j'))
+        except ValueError:
+            raise ValueError(f"Error al convertir {texto} a número complejo")
 
     def mostrar_transformada(self, resultado):
-        # Redondear y formatear cada número complejo de la lista
+        # Mostrar el resultado de manera pura e inmutable
         for idx, valor in enumerate(resultado):
-            valor_real = round(valor.real, 5)  # Redondeamos a 5 decimales
-            valor_imag = round(valor.imag, 5)  # Redondeamos a 5 decimales
+            valor_real = round(valor.real, 5)
+            valor_imag = round(valor.imag, 5)
             
-            # Mostramos el número en formato "a + bi" o "a - bi"
-            if valor_imag >= 0:
-                print(f"Resultado {idx}: {valor_real} + {valor_imag}i")
-            else:
-                print(f"Resultado {idx}: {valor_real} - {abs(valor_imag)}i")
+            # Mostrar el número en formato "a + bi" o "a - bi"
+            signo = '+' if valor_imag >= 0 else '-'
+            print(f"Resultado {idx}: {valor_real} {signo} {abs(valor_imag)}i")
 
     def visitExpr(self, ctx):
         if ctx.fourier():
             return self.visitFourierTransform(ctx.fourier())
+        elif ctx.inversa():
+            return self.visitInverseFourierTransform(ctx.inversa())
         return None
 
     def visitProgram(self, ctx):
-        return self.visit(ctx.expr())  # Asegurar que devolvemos el resultado de expr
+        return self.visit(ctx.expr())
 
 # Función para leer desde archivo
 def leer_entrada_desde_archivo(archivo):
     try:
         with open(archivo, 'r') as file:
-            return file.read().strip()  # Leemos el contenido y eliminamos espacios innecesarios
+            return file.read().strip()
     except FileNotFoundError:
         print(f"Error: No se encontró el archivo {archivo}")
         return None
 
-# Prueba el visitor con archivo de entrada
 def main():
     archivo_entrada = "input.txt"  # El nombre del archivo de entrada
     input_text = leer_entrada_desde_archivo(archivo_entrada)
@@ -79,7 +113,6 @@ def main():
         
         if result is None:
             print("Error: El resultado es None.")
-            
-        
+
 if __name__ == "__main__":
     main()
