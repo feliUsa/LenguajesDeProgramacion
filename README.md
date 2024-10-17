@@ -16,9 +16,8 @@ Instalar la ultima version de antlr (en caso de no tenerla descargada o que no s
 
 En terminal
 
-* antlr4 -Dlanguage=Python3 -visitor Calc.g4
 
-* java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 -visitor complejos.g4 
+* java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 -visitor complejos.g4
 
 * python3 calculadoraComplejos.py
 
