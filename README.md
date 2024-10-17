@@ -8,6 +8,12 @@ Instalar requerimientos necesarios para el funcionamiento del codigo
 
 * pip install requirements.txt
 
+Segunda opcion (en caso de que no descargue los requerimientos)
+
+* pip install numpy
+
+* pip install antlr4-python3-runtime==4.13.2
+
 Instalar la ultima version de antlr (en caso de no tenerla descargada o que no se descargue junto al codigo)
 
 * curl -O https://www.antlr.org/download/antlr-4.13.2-complete.jar
