@@ -11,7 +11,7 @@ class Matcher:
             'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 
             'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 
             'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield',
-            'AssempionError', 'self'
+            'AssempionError'
         }
         self.token_patterns = [
             ('tk_and_sym', '&&'),
