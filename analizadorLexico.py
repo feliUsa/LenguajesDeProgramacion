@@ -1,5 +1,6 @@
 import sys
 from matcher import Matcher
+from Parser import Parser
 
 def tokenize_line(line, line_num, matcher):
     tokens = []
@@ -42,40 +43,32 @@ def tokenize_line(line, line_num, matcher):
 
 def main():
     """
-    Función principal para leer un archivo de entrada, analizarlo léxicamente, y escribir los resultados en un archivo de salida.
+    Función principal para leer un archivo de entrada, analizarlo léxicamente, y luego realizar el análisis sintáctico.
     """
     # Verificar los argumentos de entrada
     if len(sys.argv) != 3:
-        print("Uso: python analizadorLexico.py <archivo_entrada.py> <archivo_salida.txt>")
+        print("Uso: python analizadorSintactico.py <archivo_entrada.py> <archivo_salida.txt>")
         sys.exit(1)
     
     input_file = sys.argv[1]
     output_file = sys.argv[2]
     matcher = Matcher()
 
-    try:
-        with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
-            line_num = 1
-            error_found = False  # Variable para controlar si se encontró un error léxico
-            for line in infile:
-                if error_found:  # Si ya se encontró un error, detenemos el análisis
-                    break
+    tokens = []
+    with open(input_file, 'r') as infile:
+        line_num = 1
+        for line in infile:
+            tokens += tokenize_line(line, line_num, matcher)
+            line_num += 1
 
-                tokens = tokenize_line(line, line_num, matcher)
-                for token in tokens:
-                    if token[0] == 'Error léxico':
-                        # Formato de error léxico
-                        outfile.write(f"Error léxico(linea:{token[1]},posicion:{token[2]})\n")
-                        error_found = True  # Indicar que se encontró un error léxico
-                        break  # Detener la escritura de tokens y análisis
+    # Pasar los tokens al analizador sintáctico
+    parser = Parser(tokens)
+    result = parser.parse()
 
-                    elif len(token) == 3:  # Formato para palabras reservadas
-                        outfile.write(f"<{token[0]},{token[1]},{token[2]}>\n")
+    # Guardar el resultado del análisis en el archivo de salida
+    with open(output_file, 'w') as outfile:
+        outfile.write(result)
 
-                line_num += 1
-    except FileNotFoundError:
-        print(f"Error: El archivo '{input_file}' no fue encontrado.")
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()
