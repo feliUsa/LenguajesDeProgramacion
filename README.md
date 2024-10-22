@@ -1,4 +1,5 @@
-Analizador Lexico lenguajes de programación y transducción (Proyecto corte 1)
+Analizador Sintáctico lenguajes de programación y transducción (Proyecto corte 2)
+
 
 ---
 # Integrantes
