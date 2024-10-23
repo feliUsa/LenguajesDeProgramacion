@@ -39,18 +39,64 @@ def tokenize_line(line, line_num, matcher):
 
     return tokens
 
-def analyze_syntax(lines, syntax_output_file):
+
+def analyze_syntax(lines, syntax_output_file, matcher):
     """
     Función para realizar el análisis sintáctico básico y escribir los resultados en el archivo.
-    Actualmente solo realiza un análisis básico. Debes expandirla con las reglas de tu gramática.
+    Además, detecta errores de indentación y errores estructurales.
     """
+    current_indent_level = 0  # Nivel actual de indentación
+    indent_stack = []  # Pila para controlar los niveles de indentación
+    control_structure_stack = []  # Pila para controlar las estructuras de control
+
     with open(syntax_output_file, 'w') as syntax_file:
         for line_num, line in enumerate(lines, start=1):
-            # Ejemplo básico de detección de un error de paréntesis mal cerrado
+            stripped_line = line.lstrip()
+
+            # Ignorar líneas vacías o que sean comentarios
+            if not stripped_line or stripped_line.startswith('#'):
+                continue
+
+            # Determinar nivel de indentación (contar espacios al inicio)
+            indent_level = len(line) - len(stripped_line)
+
+            # Verificar si la indentación es múltiplo de 4
+            if indent_level % 4 != 0:
+                syntax_file.write(f"<{line_num},1> Error sintáctico: Indentación incorrecta, debe ser múltiplo de 4.\n")
+
+            # Detectar el token inicial de la línea
+            first_token = matcher.match(stripped_line, 0)
+            
+            if first_token:
+                token_type = first_token[0]
+
+                # Verificar si el token es una estructura de control o una definición
+                if token_type in ['if', 'for', 'while', 'def', 'class', 'elif', 'else', 'try', 'except', 'finally']:
+                    # Validar que la siguiente línea esté indentada correctamente
+                    if indent_level <= current_indent_level:
+                        syntax_file.write(f"<{line_num},1> Error sintáctico: Se esperaba un bloque indentado después de '{token_type}'.\n")
+                    
+                    # Apilar la estructura de control
+                    control_structure_stack.append(token_type)
+                    indent_stack.append(current_indent_level)
+                    current_indent_level = indent_level
+
+                elif indent_level < current_indent_level:
+                    # Si la indentación es menor, estamos saliendo de un bloque
+                    while indent_stack and indent_level < indent_stack[-1]:
+                        indent_stack.pop()
+                        control_structure_stack.pop()
+
+                    if indent_level != (indent_stack[-1] if indent_stack else 0):
+                        syntax_file.write(f"<{line_num},1> Error sintáctico: Indentación inesperada.\n")
+
+                    current_indent_level = indent_level
+
+            # Verificar si hay paréntesis sin cerrar
             if '(' in line and ')' not in line:
                 col_num = line.find('(') + 1
                 syntax_file.write(f"<{line_num},{col_num}> Error sintáctico: se encontró: '('; se esperaba: ')'.\n")
-        
+
         syntax_file.write("El análisis sintáctico ha finalizado exitosamente.\n")
 
 def main():
@@ -66,7 +112,7 @@ def main():
     input_file = sys.argv[1]
     output_file = sys.argv[2]
     syntax_output_file = sys.argv[3]
-    matcher = Matcher()
+    matcher = Matcher()  # Instancia de Matcher para tokenización y análisis sintáctico
 
     try:
         # Leer el archivo de entrada y analizarlo léxicamente
@@ -94,7 +140,7 @@ def main():
                 line_num += 1
         
         # Realizar el análisis sintáctico
-        analyze_syntax(lines, syntax_output_file)
+        analyze_syntax(lines, syntax_output_file, matcher)  # Pasar también el matcher
 
     except FileNotFoundError:
         print(f"Error: El archivo '{input_file}' no fue encontrado.")

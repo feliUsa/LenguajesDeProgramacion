@@ -11,7 +11,6 @@ class Animal(object):
 
     class Cow(Animal):
         def __init__(self: "Cow"):
-
             self.makes_noise = True
     
     def sound(self: "Cow") -> str:

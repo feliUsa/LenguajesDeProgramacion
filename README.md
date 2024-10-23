@@ -22,4 +22,4 @@ Analizador Sintáctico lenguajes de programación y transducción (Proyecto cort
    
 4. En la terminal
    
-     a. python3 analizadorLexico.py entrada.py salida.txt
+     a. python3 analizadorSintactico.py entrada.py lexico.txt sintactico.txt
