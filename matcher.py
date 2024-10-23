@@ -11,7 +11,7 @@ class Matcher:
             'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 
             'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 
             'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield',
-            'AssempionError'
+            'AssempionError', 'self'
         }
         self.token_patterns = [
             ('tk_and_sym', '&&'),
@@ -152,4 +152,3 @@ class Matcher:
             bool: True si el carácter es válido como parte de un identificador, False en caso contrario.
         """
         return char.isalnum() or char == '_'
-

@@ -71,6 +71,8 @@ def main():
 
                     elif len(token) == 3:  # Formato para palabras reservadas
                         outfile.write(f"<{token[0]},{token[1]},{token[2]}>\n")
+                    else:  # Formato para otros tokens
+                        outfile.write(f"<{token[0]},{token[1]},{token[2]},{token[3]}>\n")
 
                 line_num += 1
     except FileNotFoundError:
