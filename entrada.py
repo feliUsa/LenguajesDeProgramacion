@@ -8,10 +8,9 @@ class Animal(object):
     def sound(self: "Animal") -> str:
         return "???"
 
-
-    class Cow(Animal):
-        def __init__(self: "Cow"):
-            self.makes_noise = True
+class Cow(Animal):
+    def __init__(self: "Cow"):
+        self.makes_noise = True
     
     def sound(self: "Cow") -> str:
         return "moo"
