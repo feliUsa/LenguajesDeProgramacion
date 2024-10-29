@@ -112,6 +112,9 @@ def analyze_syntax(lines, syntax_output_file, matcher):
             if not stripped_line or stripped_line.startswith('#'):
                 continue
 
+            # Quitar comentarios en línea y espacios al final para análisis
+            clean_line = stripped_line.split('#', 1)[0].rstrip()
+
             indent_level = len(line) - len(stripped_line)
             top_indent = indent_stack[-1] if indent_stack else 0
 
@@ -129,32 +132,40 @@ def analyze_syntax(lines, syntax_output_file, matcher):
                 token_type, token_text, col_start = first_token
 
                 if token_type == 'def':
-                    if not validate_def_block(stripped_line, line_num, syntax_file):
+                    # Validar si el final de clean_line tiene ':'
+                    if not clean_line.endswith(':'):
+                        syntax_file.write(f"<{line_num},{col_start}> Error sintáctico en declaración de función: se esperaba ':'.\n")
+                        return
+
+                    if not validate_def_block(clean_line, line_num, syntax_file):
                         return
                     control_structure_stack.append(token_type)
 
                 elif token_type == 'class':
-                    if not validate_class_block(stripped_line, line_num, syntax_file):
+                    if not validate_class_block(clean_line, line_num, syntax_file):
                         return
                     control_structure_stack.append(token_type)
 
                 elif token_type in ['if', 'for', 'while']:
-                    if not validate_control_structure(stripped_line, line_num, token_type, syntax_file):
+                    if not validate_control_structure(clean_line, line_num, token_type, syntax_file):
                         return
                     control_structure_stack.append(token_type)
 
                 elif token_type in ['elif', 'else']:
                     if not validate_elif_else_context(control_structure_stack, line_num, token_type, syntax_file):
                         return
-                    if not validate_control_structure(stripped_line, line_num, token_type, syntax_file):
+                    if not validate_control_structure(clean_line, line_num, token_type, syntax_file):
                         return
 
+            # Verificación adicional para paréntesis
             if '(' in line and ')' not in line:
                 col_num = line.find('(') + 1
                 syntax_file.write(f"<{line_num},{col_num}> Error sintáctico: se encontró '('; se esperaba ')'.\n")
                 return
 
         syntax_file.write("El análisis sintáctico ha finalizado exitosamente.\n")
+
+
 
 def main():
     if len(sys.argv) != 4:
