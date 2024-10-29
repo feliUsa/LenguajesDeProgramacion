@@ -99,44 +99,49 @@ def tokenize_line(line, line_num, matcher):
     return tokens
 
 def analyze_syntax(lines, syntax_output_file, matcher):
-    indent_stack = [0]
-    control_structure_stack = []
+    indent_stack = [0]  # Para almacenar los niveles de indentación
+    control_structure_stack = []  # Para rastrear estructuras de control (if, for, etc.)
 
     with open(syntax_output_file, 'w') as syntax_file:
         if not check_delimiters_balance(lines, syntax_file):
             return
 
         for line_num, line in enumerate(lines, start=1):
-            stripped_line = line.lstrip()
+            stripped_line = line.lstrip()  # Línea sin espacios iniciales
 
+            # Ignorar líneas vacías o comentarios
             if not stripped_line or stripped_line.startswith('#'):
                 continue
 
-            # Quitar comentarios en línea y espacios al final para análisis
+            # Quitar comentarios en línea y espacios al final para el análisis
             clean_line = stripped_line.split('#', 1)[0].rstrip()
 
+            # Calcular el nivel de indentación actual
             indent_level = len(line) - len(stripped_line)
             top_indent = indent_stack[-1] if indent_stack else 0
 
+            # Verificar si la línea actual está alineada con el nivel de indentación esperado
             if indent_level > top_indent:
-                indent_stack.append(indent_level)
+                indent_stack.append(indent_level)  # Nuevo nivel de indentación (dentro de un bloque)
             elif indent_level < top_indent:
+                # Quitar niveles de indentación hasta encontrar uno que coincida
                 while indent_stack and indent_stack[-1] > indent_level:
                     indent_stack.pop()
-                if indent_level != indent_stack[-1]:
+
+                if indent_level != indent_stack[-1]:  # Indentación no coincide
                     syntax_file.write(f"<{line_num},1> Error sintáctico: Indentación inconsistente.\n")
                     return
 
+            # Identificación del token principal
             first_token = matcher.match(stripped_line, 0)
             if first_token:
                 token_type, token_text, col_start = first_token
 
+                # Verificación de los bloques de funciones y clases
                 if token_type == 'def':
-                    # Validar si el final de clean_line tiene ':'
                     if not clean_line.endswith(':'):
                         syntax_file.write(f"<{line_num},{col_start}> Error sintáctico en declaración de función: se esperaba ':'.\n")
                         return
-
                     if not validate_def_block(clean_line, line_num, syntax_file):
                         return
                     control_structure_stack.append(token_type)
@@ -157,7 +162,7 @@ def analyze_syntax(lines, syntax_output_file, matcher):
                     if not validate_control_structure(clean_line, line_num, token_type, syntax_file):
                         return
 
-            # Verificación adicional para paréntesis
+            # Verificación adicional para delimitadores de paréntesis
             if '(' in line and ')' not in line:
                 col_num = line.find('(') + 1
                 syntax_file.write(f"<{line_num},{col_num}> Error sintáctico: se encontró '('; se esperaba ')'.\n")
