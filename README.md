@@ -1,4 +1,8 @@
-# Daniel Oviedo
+# Integrantes
+
+* Daniel Oviedo
+* Sara Villanueva
+* Andres Vazquez
 
 Construcción de DSL (Lenguaje de dominio específico para realizar procesos de Machine Learning)
 
