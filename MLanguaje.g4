@@ -1,116 +1,114 @@
 grammar MLanguaje;
 
 program
-    : (statement | functionDecl)* EOF
+    : statement* EOF
     ;
 
 statement
-    : varDeclaration                   # DeclareVarStmt
-    | expression                       # ExprStmt
-    | ifStatement                      # IfStmt
-    | whileStatement                   # WhileStmt
-    | forStatement                     # ForStmt
-    | fileOperation                    # FileOpStmt
-    | plotOperation                    # PlotOpStmt
+    : varDeclaration
+    | ifStatement
+    | whileStatement
+    | forStatement
+    | methodCall
+    | functionDecl
+    | plotOperation
+    | 'print' '(' expression ')'
+    | fileOperation
+    | mlFunction
+    | matrixOperation
     ;
 
 varDeclaration
-    : LET? ID '=' expression
+    : 'let' ID '=' expression
     ;
 
 functionDecl
-    : 'def' ID '(' parameterList? ')' '{' program '}'
+    : 'def' ID '(' paramList? ')' '{' statement* '}'
     ;
 
-parameterList
-    : ID (COMMA ID)*
-    ;
-
-list
-    : '[' (expression (COMMA expression)*)? ']'
-    ;
-
-comparison
-    : expression ('>' | '<' | '==' | '!=' | '>=' | '<=') expression
+paramList
+    : ID (',' ID)*
     ;
 
 ifStatement
-    : 'if' '(' comparison ')' '{' program '}' ('else' '{' program '}')?
+    : 'if' '(' expression ')' '{' statement* '}' ('else' '{' statement* '}')?
     ;
 
+
 whileStatement
-    : 'while' '(' comparison ')' '{' program '}'
+    : 'while' '(' expression ')' '{' statement* '}'
     ;
 
 forStatement
-    : 'for' '(' varDeclaration ';' comparison ';' expression ')' '{' program '}'
+    : 'for' '(' varDeclaration ';' expression ';' expression ')' '{' statement* '}'
     ;
 
-expression
-    : primaryExpression                                   # PrimaryExpr
-    ;
-
-primaryExpression
-    : primaryExpression '^' primaryExpression             # PowerExpr
-    | primaryExpression ('*' | '/' | '%') primaryExpression  # MultExpr
-    | primaryExpression ('+' | '-') primaryExpression       # AddExpr
-    | '(' expression ')'                                  # ParenExpr
-    | functionCall                                        # CallFunc
-    | trigFunction                                        # TrigFunc
-    | list                                                # ListExpr
-    | ID                                                  # VarExpr
-    | NUMBER                                              # NumberExpr
-    | STRING                                              # StringExpr
-    | 'true'                                              # TrueExpr
-    | 'false'                                             # FalseExpr
-    ;
-
-matrixOperation
-    : ID '.' (ADD | SUBTRACT | MULTIPLY | TRANSPOSE | INVERSE) '(' (expression (COMMA expression)*)? ')'
+methodCall
+    : ID '.' ID '(' (expression (',' expression)*)? ')'
     ;
 
 fileOperation
-    : READ_FILE LPAREN STRING (COMMA expression)? RPAREN
+    : 'readFile' '(' STRING ')'
+    | 'writeFile' '(' STRING ',' STRING ')'
     ;
 
 plotOperation
-    : PLOT_LINE LPAREN expression (COMMA expression)* RPAREN
+    : 'plotLine' '(' expression ',' expression ')' # PlotLine
+    | 'plotBar' '(' expression ',' expression ')'  # PlotBar
     ;
 
-functionCall
-    : ID LPAREN argumentList? RPAREN
+
+mlFunction
+    : 'multilayer_perceptron' '(' expression ',' expression ')'
+    | 'kmeans_clustering' '(' expression ',' expression ',' expression ')'
     ;
 
-argumentList
-    : expression (COMMA expression)*
+matrixOperation
+    : expression '.' ('add' | 'subtract' | 'multiply' | 'transpose' | 'inverse') '(' expression? ')'
     ;
 
-trigFunction
-    : (SIN | COS | TAN) LPAREN expression RPAREN
+expression
+    : expression ('+' | '-' | '*' | '/' | '%' | '^') expression
+    | expression ('>' | '<' | '>=' | '<=' | '==' | '!=') expression
+    | '(' expression ')'
+    | '-'? NUMBER
+    | STRING
+    | ID
+    | list
+    | matrixConstructor
+    | methodCall
+    | '-'? NUMBER
+    | 'true'
+    | 'false'
+    | ID '.' 'transpose' '(' ')'
+    | ID '.' 'inverse' '(' ')'
     ;
 
-LET: 'let';
-ID: [a-zA-Z_][a-zA-Z0-9_]*;
-NUMBER: [0-9]+('.'[0-9]+)?;
-STRING: '"' .*? '"';
-COMMA: ',';
-LPAREN: '(';
-RPAREN: ')';
-LBRACE: '{';
-RBRACE: '}';
-READ_FILE: 'readFile';
-WRITE_FILE: 'writeFile';
-PLOT_LINE: 'plotLine';
-PLOT_BAR: 'plotBar';
-SIN: 'sin';
-COS: 'cos';
-TAN: 'tan';
-TRUE: 'true';
-FALSE: 'false';
-WS: [ \t\r\n]+ -> skip;
-COMMENT: '#' ~[\r\n]* -> skip;
-ADD: 'add';
-SUBTRACT: 'subtract';
-MULTIPLY: 'multiply';
-TRANSPOSE: 'transpose';
-INVERSE: 'inverse';
+
+list
+    : '[' (expression (',' expression)*)? ']'
+    ;
+
+matrixConstructor
+    : 'matrix' '(' list ')'
+    ;
+
+ID
+    : [a-zA-Z_] [a-zA-Z_0-9]*
+    ;
+
+NUMBER
+    : [0-9]+ ('.' [0-9]+)?
+    ;
+
+STRING
+    : '"' (~["\\] | '\\' .)* '"'
+    ;
+
+WHITESPACE
+    : [ \t\r\n]+ -> skip
+    ;
+
+COMMENT
+    : '#' ~[\r\n]* -> skip
+    ;

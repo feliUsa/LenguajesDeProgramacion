@@ -1,4 +1,5 @@
 from antlrEjecucion.MLanguajeVisitor import MLanguajeVisitor
+from antlrEjecucion import MLanguajeParser
 import math
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,45 +7,43 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.cluster import KMeans
 
-
 class MLanguajeInterpreter(MLanguajeVisitor):
     def __init__(self):
         self.variables = {}
 
-    # Función para manejar declaraciones de variables
+    # Manejo de declaraciones de variables
     def visitVarDeclaration(self, ctx):
         var_name = ctx.ID().getText()
         value = self.visit(ctx.expression())
         self.variables[var_name] = value
         return value
 
-    # Función para manejar expresiones aditivas (suma y resta)
+    # Operaciones aditivas
     def visitAdditiveExpression(self, ctx):
         left = self.visit(ctx.expression(0))
         right = self.visit(ctx.expression(1))
-        if ctx.op.text == '+':
-            return left + right
-        else:
-            return left - right
+        return left + right if ctx.op.text == '+' else left - right
 
-    # Función para manejar expresiones multiplicativas (*, /, %)
+    # Operaciones multiplicativas
     def visitMultiplicativeExpression(self, ctx):
         left = self.visit(ctx.expression(0))
         right = self.visit(ctx.expression(1))
         if ctx.op.text == '*':
             return left * right
         elif ctx.op.text == '/':
+            if right == 0:
+                raise ZeroDivisionError("No se puede dividir entre cero.")
             return left / right
         elif ctx.op.text == '%':
             return left % right
 
-    # Función para manejar expresiones de potencia (x^y)
+    # Potencias
     def visitPowerExpression(self, ctx):
         base = self.visit(ctx.expression(0))
         exponent = self.visit(ctx.expression(1))
         return math.pow(base, exponent)
 
-    # Función para manejar expresiones trigonométricas (sin, cos, tan)
+    # Funciones trigonométricas
     def visitTrigonometricExpression(self, ctx):
         angle = self.visit(ctx.expression())
         if ctx.op.text == 'sin':
@@ -54,31 +53,49 @@ class MLanguajeInterpreter(MLanguajeVisitor):
         elif ctx.op.text == 'tan':
             return math.tan(angle)
 
-    # Función para manejar condiciones if-else
+    # Condicionales if-else
     def visitIfStatement(self, ctx):
         condition = self.visit(ctx.expression())
         if condition:
-            return self.visit(ctx.program(0))
-        elif ctx.elseProgram:
-            return self.visit(ctx.elseProgram)
+            statements = ctx.statement(0)
+        else:
+            statements = ctx.statement(1) if ctx.statement(1) else []
+        self._executeStatements(statements)
 
-    # Función para manejar bucles for
+    # Ciclos while
+    def visitWhileStatement(self, ctx):
+        while self.visit(ctx.expression()):  # Evaluar la condición
+            for stmt in ctx.statement():  # Ejecutar las declaraciones en el cuerpo
+                self.visit(stmt)
+
+
+    # Ciclos for
     def visitForStatement(self, ctx):
+        # Inicialización de la variable
         self.visit(ctx.varDeclaration())
-        while self.visit(ctx.expression(1)):
-            self.visit(ctx.program())
-            self.visit(ctx.expression(2))
+        while self.visit(ctx.expression(0)):
+            self._executeStatements(ctx.statement())
+            # Actualización del bucle
+            update_expr = ctx.expression(1)
+            if update_expr:
+                self.visit(update_expr)
 
-    # Función para generar gráficos (linea, barras)
+    # Graficación
     def visitPlotOperation(self, ctx):
-        values = [self.visit(arg) for arg in ctx.argumentList().expression()]
-        if ctx.op.text == 'plotLine':
-            plt.plot(values)
-        elif ctx.op.text == 'plotBar':
-            plt.bar(range(len(values)), values)
-        plt.show()
+        if isinstance(ctx, MLanguajeParser.PlotLineContext):
+            x_values = self.visit(ctx.expression(0))
+            y_values = self.visit(ctx.expression(1))
+            plt.plot(x_values, y_values)
+            plt.show()
+        elif isinstance(ctx, MLanguajeParser.PlotBarContext):
+            x_values = self.visit(ctx.expression(0))
+            y_values = self.visit(ctx.expression(1))
+            plt.bar(x_values, y_values)
+            plt.show()
 
-    # Función para manejo de archivos (lectura, escritura)
+
+
+    # Manejo de archivos
     def visitFileOperation(self, ctx):
         filename = ctx.STRING().getText().strip('"')
         if ctx.op.text == 'readFile':
@@ -90,7 +107,30 @@ class MLanguajeInterpreter(MLanguajeVisitor):
                 file.write(data)
         return None
 
-    # Función de regresión lineal
+    # Operaciones de matrices
+    def visitMatrixOperation(self, ctx):
+        matrix = self.visit(ctx.expression(0))
+        if not isinstance(matrix, np.ndarray):
+            raise ValueError(f"Se esperaba una matriz, pero se obtuvo: {type(matrix)}")
+        
+        operation = ctx.operation.getText()
+        if operation == 'add':
+            other = self.visit(ctx.expression(1))
+            return np.add(matrix, other)
+        elif operation == 'subtract':
+            other = self.visit(ctx.expression(1))
+            return np.subtract(matrix, other)
+        elif operation == 'multiply':
+            other = self.visit(ctx.expression(1))
+            return np.dot(matrix, other)
+        elif operation == 'transpose':
+            return np.transpose(matrix)
+        elif operation == 'inverse':
+            return np.linalg.inv(matrix)
+        else:
+            raise ValueError(f"Operación desconocida: {operation}")
+
+    # Regresión lineal
     def linear_regression(self, x_values, y_values, plot=False):
         x = np.array(x_values)
         y = np.array(y_values)
@@ -99,28 +139,12 @@ class MLanguajeInterpreter(MLanguajeVisitor):
         self.variables['linear_regression_result'] = (m, c)
         if plot:
             plt.scatter(x, y, color='blue', label='Data points')
-            plt.plot(x, m*x + c, color='red', label=f'y={m:.2f}x + {c:.2f}')
+            plt.plot(x, m * x + c, color='red', label=f'y={m:.2f}x + {c:.2f}')
             plt.legend()
             plt.show()
         return m, c
 
-    # Función de regresión polinomial
-    def polynomial_regression(self, x_values, y_values, degree=2, plot=False):
-        x = np.array(x_values)
-        y = np.array(y_values)
-        coeffs = np.polyfit(x, y, degree)
-        poly_func = np.poly1d(coeffs)
-        self.variables['polynomial_regression_result'] = coeffs
-        if plot:
-            x_fit = np.linspace(x.min(), x.max(), 100)
-            y_fit = poly_func(x_fit)
-            plt.scatter(x, y, color='blue', label='Data points')
-            plt.plot(x_fit, y_fit, color='green', label=f'Polynomial regression (degree={degree})')
-            plt.legend()
-            plt.show()
-        return coeffs
-
-    # Función para clasificador con perceptrón multicapa
+    # Clasificador MLP
     def multilayer_perceptron(self, x_train, y_train, x_test=None, y_test=None, hidden_layer_sizes=(10,), max_iter=1000):
         mlp = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, max_iter=max_iter)
         mlp.fit(x_train, y_train)
@@ -132,7 +156,7 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             return accuracy
         return mlp
 
-    # Función de agrupamiento con K-means
+    # Agrupamiento K-means
     def kmeans_clustering(self, data, num_clusters=3, plot=False):
         kmeans = KMeans(n_clusters=num_clusters)
         kmeans.fit(data)
@@ -146,20 +170,24 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             plt.show()
         return labels
 
-    def visitMatrixOperation(self, ctx):
-        matrix_expr = self.visit(ctx.expression(0))
-        operation = ctx.operation.getText()
-        other_matrix_expr = self.visit(ctx.expression(1)) if ctx.expression(1) else None
-        
-        if operation == 'add':
-            return np.add(matrix_expr, other_matrix_expr)
-        elif operation == 'subtract':
-            return np.subtract(matrix_expr, other_matrix_expr)
-        elif operation == 'multiply':
-            return np.dot(matrix_expr, other_matrix_expr)
-        elif operation == 'transpose':
-            return np.transpose(matrix_expr)
-        elif operation == 'inverse':
-            return np.linalg.inv(matrix_expr)
+    # Método auxiliar para ejecutar listas de declaraciones
+    def _executeStatements(self, statements):
+        if isinstance(statements, list):
+            for stmt in statements:
+                self.visit(stmt)
         else:
-            raise ValueError(f"Operación de matriz desconocida: {operation}")
+            self.visit(statements)
+
+    # Manejo de matrices: transponer
+    def visitMatrixTranspose(self, ctx):
+        matrix = self.variables[ctx.ID().getText()]
+        if not isinstance(matrix, np.ndarray):
+            raise ValueError(f"Se esperaba una matriz, pero se obtuvo: {type(matrix)}")
+        return np.transpose(matrix)
+
+    # Manejo de matrices: inversa
+    def visitMatrixInverse(self, ctx):
+        matrix = self.variables[ctx.ID().getText()]
+        if not isinstance(matrix, np.ndarray):
+            raise ValueError(f"Se esperaba una matriz, pero se obtuvo: {type(matrix)}")
+        return np.linalg.inv(matrix)
