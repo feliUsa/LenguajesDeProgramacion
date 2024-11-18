@@ -15,6 +15,13 @@ class MLanguajeInterpreter(MLanguajeVisitor):
     def visitVarDeclaration(self, ctx):
         var_name = ctx.ID().getText()
         value = self.visit(ctx.expression())
+        
+        # Validar listas y matrices
+        if isinstance(value, list):
+            value = list(value)
+        elif isinstance(value, np.ndarray):
+            value = np.array(value)
+
         self.variables[var_name] = value
         return value
 
@@ -85,14 +92,37 @@ class MLanguajeInterpreter(MLanguajeVisitor):
         if isinstance(ctx, MLanguajeParser.PlotLineContext):
             x_values = self.visit(ctx.expression(0))
             y_values = self.visit(ctx.expression(1))
-            plt.plot(x_values, y_values)
+
+            if not isinstance(x_values, list) or not isinstance(y_values, list):
+                raise TypeError("Los argumentos de plotLine deben ser listas.")
+
+            if len(x_values) != len(y_values):
+                raise ValueError("Las listas x e y deben tener la misma longitud.")
+
+            plt.plot(x_values, y_values, marker='o', label="plotLine")
+            plt.xlabel('X')
+            plt.ylabel('Y')
+            plt.title('Gráfica de Línea')
+            plt.legend()
+            plt.grid(True)
             plt.show()
         elif isinstance(ctx, MLanguajeParser.PlotBarContext):
             x_values = self.visit(ctx.expression(0))
             y_values = self.visit(ctx.expression(1))
-            plt.bar(x_values, y_values)
-            plt.show()
 
+            if not isinstance(x_values, list) or not isinstance(y_values, list):
+                raise TypeError("Los argumentos de plotBar deben ser listas.")
+
+            if len(x_values) != len(y_values):
+                raise ValueError("Las listas x e y deben tener la misma longitud.")
+
+            plt.bar(x_values, y_values, color='blue', label="plotBar")
+            plt.xlabel('X')
+            plt.ylabel('Y')
+            plt.title('Gráfica de Barras')
+            plt.legend()
+            plt.grid(True)
+            plt.show()
 
 
     # Manejo de archivos
