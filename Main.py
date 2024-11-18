@@ -27,8 +27,9 @@ def main(argv):
     # Crear y ejecutar el intérprete de MLanguaje
     interpreter = MLanguajeInterpreter()
     try:
-        interpreter.visit(tree)
+        result = interpreter.visit(tree)
         print("Programa ejecutado exitosamente.")
+        print(result)
     except Exception as e:
         print(f"Error durante la ejecución: {e}")
 

@@ -1,1 +1,4 @@
 env/
+antlrEjecucion/
+__pycache__/
+*.pyc

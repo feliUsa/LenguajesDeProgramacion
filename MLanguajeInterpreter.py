@@ -10,6 +10,11 @@ from sklearn.cluster import KMeans
 class MLanguajeInterpreter(MLanguajeVisitor):
     def __init__(self):
         self.variables = {}
+        
+    def visitPrintStatement(self, ctx):
+        value = self.visit(ctx.expression())
+        print(value)  # Mostramos el resultado en pantalla
+        return value
 
     # Manejo de declaraciones de variables
     def visitVarDeclaration(self, ctx):
