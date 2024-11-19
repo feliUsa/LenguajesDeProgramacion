@@ -116,13 +116,26 @@ class MLanguajeInterpreter(MLanguajeVisitor):
         
         
     def visitForStatement(self, ctx):
-        """Maneja bucles for."""
+        """Maneja bucles for estilo Python."""
         print("[DEBUG] Ejecutando forStatement")
         try:
-            self.visit(ctx.varDeclaration())  # Inicialización
-            while self.visit(ctx.expression(0)):  # Condición
+            # Obtener el nombre de la variable de iteración
+            var_name = ctx.ID().getText()
+
+            # Evaluar la expresión iterable (e.g., range(5) o una lista)
+            iterable = self.visit(ctx.expression())
+
+            if not hasattr(iterable, '__iter__'):
+                raise TypeError(f"[ERROR] El objeto {iterable} no es iterable.")
+
+            # Iterar sobre el iterable
+            for value in iterable:
+                # Asignar el valor actual a la variable de iteración
+                self.variables[var_name] = value
+                print(f"[DEBUG] Variable de iteración {var_name} = {value}")
+
+                # Ejecutar el cuerpo del bucle
                 self._executeStatements(ctx.statement())
-                self.visit(ctx.expression(1))  # Actualización
         except Exception as e:
             self.log(f"[ERROR] Error en forStatement: {e}")
             print(f"[ERROR] Detalles del error: {e}")
@@ -188,20 +201,26 @@ class MLanguajeInterpreter(MLanguajeVisitor):
     def visitExpression(self, ctx):
         """Evalúa una expresión."""
         print("[DEBUG] Evaluando expresión")
+        
         if ctx.NUMBER():
             return float(ctx.NUMBER().getText()) if '.' in ctx.NUMBER().getText() else int(ctx.NUMBER().getText())
+        
         elif ctx.STRING():
             return ctx.STRING().getText().strip('"')
+        
         elif ctx.ID():
             var_name = ctx.ID().getText()
             if var_name in self.variables:
                 return self.variables[var_name]
             else:
                 raise NameError(f"Variable '{var_name}' no definida")
+        
         elif ctx.list_():
             return self.visitList(ctx.list_())
+        
         elif ctx.matrixConstructor():
             return self.visitMatrixConstructor(ctx.matrixConstructor())
+        
         elif ctx.getChildCount() == 3:  # Operaciones binarias
             left = self.visit(ctx.expression(0))
             right = self.visit(ctx.expression(1))
@@ -210,10 +229,22 @@ class MLanguajeInterpreter(MLanguajeVisitor):
                 return self._evaluateArithmetic(left, right, operator)
             elif operator in ['>', '<', '>=', '<=', '==', '!=']:
                 return self._evaluateComparison(left, right, operator)
+        
         elif ctx.getChildCount() == 2:  # Operador unario (e.g., -x)
             value = self.visit(ctx.expression(0))
             if ctx.getChild(0).getText() == '-':
                 return -value
+        
+        elif ctx.getChild(0).getText() == 'range':  # Evaluación de range
+            start = self.visit(ctx.expression(0))  # Primer argumento: inicio
+            stop = self.visit(ctx.expression(1)) if ctx.expression(1) else None  # Segundo argumento: fin (opcional)
+            step = self.visit(ctx.expression(2)) if ctx.expression(2) else 1  # Tercer argumento: paso (opcional)
+            
+            # Construir el rango
+            if stop is None:
+                return range(start)  # Solo un argumento: range(stop)
+            return range(start, stop, step)  # Dos o tres argumentos: range(start, stop, step)
+        
         elif ctx.getChild(0).getText() in ['sin', 'cos', 'tan']:  # Funciones trigonométricas
             value = self.visit(ctx.expression(0))
             if not isinstance(value, (int, float)):
@@ -224,8 +255,10 @@ class MLanguajeInterpreter(MLanguajeVisitor):
                 return math.cos(value)
             elif ctx.getChild(0).getText() == 'tan':
                 return math.tan(value)
+        
         elif ctx.getChildCount() == 1:  # Valores directos
             return self.visit(ctx.getChild(0))
+
 
 
     def _evaluateArithmetic(self, left, right, operator):
@@ -269,7 +302,7 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             matrix_name = ctx.ID().getText()
             if matrix_name not in self.variables:
                 raise NameError(f"[ERROR] Matriz '{matrix_name}' no está definida.")
-            
+
             # Obtener la operación
             operation = ctx.getChild(2).getText()
             matrix = self.variables[matrix_name]
@@ -298,11 +331,15 @@ class MLanguajeInterpreter(MLanguajeVisitor):
                 result = np.linalg.inv(matrix)
 
             print(f"[DEBUG] Resultado de '{operation}': {result}")
+            self.variables[f"{matrix_name}_{operation}"] = result  # Guardar resultado
             return result
         except Exception as e:
             self.log(f"[ERROR] Error en matrixOperation: {e}")
             print(f"[ERROR] Detalles del error: {e}")
             return None
+
+
+
 
         
     def visitMlFunction(self, ctx):

@@ -54,8 +54,13 @@ while (i < 5) {
 }
 
 print("=== Pruebas de Bucles For ===")
-for (let j = 0; j < 5; j = j + 1) {
-    print(j)
+for i in range(5) {
+    print(i)
+}
+
+print("=== Pruebas de Iteración con Lista ===")
+for x in [10, 20, 30] {
+    print(x)
 }
 
 # 7. Visualización de datos

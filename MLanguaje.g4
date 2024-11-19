@@ -39,7 +39,7 @@ whileStatement
     ;
 
 forStatement
-    : 'for' '(' varDeclaration ';' expression ';' expression ')' '{' statement* '}'
+    : 'for' ID 'in' expression '{' statement* '}'
     ;
 
 methodCall
@@ -79,6 +79,7 @@ expression
     | list
     | matrixConstructor
     | methodCall
+    | 'range' '(' expression (',' expression (',' expression)?)? ')' // Nuevo rango
     | '-'? NUMBER
     | 'true'
     | 'false'
@@ -88,6 +89,7 @@ expression
     | 'cos' '(' expression ')'
     | 'tan' '(' expression ')'
     ;
+
 
 list
     : '[' (expression (',' expression)*)? ']'
