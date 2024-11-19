@@ -31,6 +31,7 @@ def main(argv):
 
         print("\n=== Resumen de la Ejecución ===")
         print(interpreter.get_summary())
+        
     except Exception as e:
         print(f"Error durante el procesamiento o la interpretación: {e}")
 

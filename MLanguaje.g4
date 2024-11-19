@@ -65,8 +65,9 @@ mlFunction
     ;
 
 matrixOperation
-    : expression '.' ('add' | 'subtract' | 'multiply' | 'transpose' | 'inverse') '(' expression? ')'
+    : ID '.' ('add' | 'subtract' | 'multiply' | 'transpose' | 'inverse') '(' (expression (',' expression)?)? ')'
     ;
+
 
 expression
     : expression ('+' | '-' | '*' | '/' | '%' | '^') expression

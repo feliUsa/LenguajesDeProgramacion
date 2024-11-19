@@ -63,8 +63,8 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             self.log(f"[ERROR] Nodo no manejado: {ctx.getText()}")
 
 
-
     def visitVarDeclaration(self, ctx):
+        """Maneja declaraciones de variables."""
         print("[DEBUG] Declaración de variable")
         var_name = ctx.ID().getText()
         value = self.visit(ctx.expression())
@@ -72,57 +72,25 @@ class MLanguajeInterpreter(MLanguajeVisitor):
         print(f"[DEBUG] Variable {var_name} asignada a {value}")
         return value
 
-    def visitExpression(self, ctx):
-        """Evalúa una expresión."""
-        print("[DEBUG] Evaluando expresión")
-        if ctx.NUMBER():
-            return float(ctx.NUMBER().getText()) if '.' in ctx.NUMBER().getText() else int(ctx.NUMBER().getText())
-        elif ctx.STRING():
-            return ctx.STRING().getText().strip('"')
-        elif ctx.ID():
-            var_name = ctx.ID().getText()
-            if var_name in self.variables:
-                return self.variables[var_name]
-            else:
-                raise NameError(f"Variable '{var_name}' no definida")
-        elif ctx.list_():  # Corregido de list() a list_()
-            return self.visitList(ctx.list_())
-        elif ctx.matrixConstructor():
-            return self.visitMatrixConstructor(ctx.matrixConstructor())
-        elif ctx.getChildCount() == 3:  # Operaciones binarias
-            left = self.visit(ctx.expression(0))
-            right = self.visit(ctx.expression(1))
-            operator = ctx.getChild(1).getText()
-            if operator == '+':
-                return left + right
-            elif operator == '-':
-                return left - right
-            elif operator == '*':
-                return left * right
-            elif operator == '/':
-                if right == 0:
-                    raise ZeroDivisionError("División por cero")
-                return left / right
-            elif operator == '%':
-                return left % right
-            elif operator == '^':
-                return math.pow(left, right)
-        elif ctx.getChildCount() == 2:  # Operador unario (e.g., -x)
-            value = self.visit(ctx.expression(0))
-            if ctx.getChild(0).getText() == '-':
-                return -value
-        elif ctx.getChildCount() == 1:  # Valores directos
-            return self.visit(ctx.getChild(0))
 
     def visitList(self, ctx):
         """Procesa una lista."""
         print("[DEBUG] Evaluando lista")
         return [self.visit(expr) for expr in ctx.expression()]
 
+
     def visitMatrixConstructor(self, ctx):
         """Procesa una construcción de matriz."""
         print("[DEBUG] Evaluando matriz")
-        return np.array(self.visitList(ctx.list_()))  # Corregido de list() a list_()
+        try:
+            result = np.array(self.visitList(ctx.list_()))
+            print(f"[DEBUG] Matriz construida: {result}")
+            return result
+        except Exception as e:
+            self.log(f"[ERROR] Error en matrixConstructor: {e}")
+            print(f"[ERROR] Detalles del error: {e}")
+            return None
+
 
     def visitIfStatement(self, ctx):
         """Maneja declaraciones if."""
@@ -145,6 +113,20 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             print(f"[DEBUG] Condición while evaluada como True")
             self._executeStatements(ctx.statement())
         print("[DEBUG] Salida del while loop")
+        
+        
+    def visitForStatement(self, ctx):
+        """Maneja bucles for."""
+        print("[DEBUG] Ejecutando forStatement")
+        try:
+            self.visit(ctx.varDeclaration())  # Inicialización
+            while self.visit(ctx.expression(0)):  # Condición
+                self._executeStatements(ctx.statement())
+                self.visit(ctx.expression(1))  # Actualización
+        except Exception as e:
+            self.log(f"[ERROR] Error en forStatement: {e}")
+            print(f"[ERROR] Detalles del error: {e}")
+
 
 
     def visitPlotOperation(self, ctx):
@@ -232,8 +214,19 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             value = self.visit(ctx.expression(0))
             if ctx.getChild(0).getText() == '-':
                 return -value
+        elif ctx.getChild(0).getText() in ['sin', 'cos', 'tan']:  # Funciones trigonométricas
+            value = self.visit(ctx.expression(0))
+            if not isinstance(value, (int, float)):
+                raise TypeError(f"El argumento de {ctx.getChild(0).getText()} debe ser numérico.")
+            if ctx.getChild(0).getText() == 'sin':
+                return math.sin(value)
+            elif ctx.getChild(0).getText() == 'cos':
+                return math.cos(value)
+            elif ctx.getChild(0).getText() == 'tan':
+                return math.tan(value)
         elif ctx.getChildCount() == 1:  # Valores directos
             return self.visit(ctx.getChild(0))
+
 
     def _evaluateArithmetic(self, left, right, operator):
         """Evalúa operaciones aritméticas."""
@@ -267,6 +260,50 @@ class MLanguajeInterpreter(MLanguajeVisitor):
         elif operator == '!=':
             return left != right
         
+        
+    def visitMatrixOperation(self, ctx):
+        """Maneja operaciones con matrices."""
+        print("[DEBUG] Visitando matrixOperation")
+        try:
+            # Obtener el nombre de la matriz
+            matrix_name = ctx.ID().getText()
+            if matrix_name not in self.variables:
+                raise NameError(f"[ERROR] Matriz '{matrix_name}' no está definida.")
+            
+            # Obtener la operación
+            operation = ctx.getChild(2).getText()
+            matrix = self.variables[matrix_name]
+            print(f"[DEBUG] Matriz '{matrix_name}': {matrix}")
+            print(f"[DEBUG] Operación: {operation}")
+
+            # Operaciones binarias
+            if operation in ['add', 'subtract', 'multiply']:
+                other_matrix = self.visit(ctx.expression(0))
+                print(f"[DEBUG] Otra matriz: {other_matrix}")
+                if not isinstance(other_matrix, np.ndarray):
+                    raise TypeError(f"[ERROR] La operación '{operation}' requiere una matriz válida.")
+                if operation == 'add':
+                    result = np.add(matrix, other_matrix)
+                elif operation == 'subtract':
+                    result = np.subtract(matrix, other_matrix)
+                elif operation == 'multiply':
+                    result = np.dot(matrix, other_matrix)
+
+            # Operaciones unarias
+            elif operation == 'transpose':
+                result = np.transpose(matrix)
+            elif operation == 'inverse':
+                if len(matrix) != len(matrix[0]):
+                    raise ValueError("[ERROR] Solo se puede calcular la inversa de matrices cuadradas.")
+                result = np.linalg.inv(matrix)
+
+            print(f"[DEBUG] Resultado de '{operation}': {result}")
+            return result
+        except Exception as e:
+            self.log(f"[ERROR] Error en matrixOperation: {e}")
+            print(f"[ERROR] Detalles del error: {e}")
+            return None
+
         
     def visitMlFunction(self, ctx):
         if ctx.getChild(0).getText() == 'multilayer_perceptron':
