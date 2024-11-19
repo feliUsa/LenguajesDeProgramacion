@@ -61,6 +61,7 @@ plotOperation
 mlFunction
     : 'multilayer_perceptron' '(' expression ',' expression (',' expression (',' expression)?)? ')'
     | 'kmeans_clustering' '(' expression ',' expression (',' expression)? ')'
+    | 'linear_regression' '(' expression ',' expression (',' expression)? ')' // Nueva regla
     ;
 
 matrixOperation

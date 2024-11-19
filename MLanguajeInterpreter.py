@@ -2,8 +2,11 @@ from antlrEjecucion.MLanguajeVisitor import MLanguajeVisitor
 from antlrEjecucion.MLanguajeParser import MLanguajeParser
 import math
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
 import numpy as np
 from sklearn.neural_network import MLPClassifier
+from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
 
 class MLanguajeInterpreter(MLanguajeVisitor):
@@ -23,31 +26,42 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             self.visit(statement)
 
     def visitStatement(self, ctx):
-        """Procesa cada declaración dentro del programa."""
         if ctx.varDeclaration():
+            print("[DEBUG] Visitando varDeclaration")
             self.visit(ctx.varDeclaration())
         elif ctx.ifStatement():
+            print("[DEBUG] Visitando ifStatement")
             self.visit(ctx.ifStatement())
         elif ctx.whileStatement():
+            print("[DEBUG] Visitando whileStatement")
             self.visit(ctx.whileStatement())
         elif ctx.forStatement():
+            print("[DEBUG] Visitando forStatement")
             self.visit(ctx.forStatement())
         elif ctx.methodCall():
+            print("[DEBUG] Visitando methodCall")
             self.visit(ctx.methodCall())
         elif ctx.functionDecl():
+            print("[DEBUG] Visitando functionDecl")
             self.visit(ctx.functionDecl())
         elif ctx.plotOperation():
+            print("[DEBUG] Visitando plotOperation")
             self.visit(ctx.plotOperation())
         elif ctx.fileOperation():
+            print("[DEBUG] Visitando fileOperation")
             self.visit(ctx.fileOperation())
         elif ctx.mlFunction():
+            print("[DEBUG] Visitando mlFunction")
             self.visit(ctx.mlFunction())
         elif ctx.matrixOperation():
+            print("[DEBUG] Visitando matrixOperation")
             self.visit(ctx.matrixOperation())
         elif ctx.getChild(0).getText() == 'print':
+            print("[DEBUG] Visitando printStatement")
             self.visitPrintStatement(ctx)
         else:
             self.log(f"[ERROR] Nodo no manejado: {ctx.getText()}")
+
 
 
     def visitVarDeclaration(self, ctx):
@@ -132,24 +146,42 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             self._executeStatements(ctx.statement())
         print("[DEBUG] Salida del while loop")
 
-    def visitPlotOperation(self, ctx):
-        x_values = self.visit(ctx.expression(0))
-        y_values = self.visit(ctx.expression(1))
-        if not isinstance(x_values, list) or not isinstance(y_values, list):
-            raise TypeError("Los argumentos deben ser listas.")
-        if len(x_values) != len(y_values):
-            raise ValueError("Las listas deben tener la misma longitud.")
 
-        plt.plot(x_values, y_values, marker='o', label='plotLine')
-        plt.xlabel("X")
-        plt.ylabel("Y")
-        plt.title("Gráfica de Línea")
-        plt.legend()
-        plt.grid(True)
-        image_name = "plot_line.png"
-        plt.savefig(image_name)
-        plt.close()
-        self.log(f"[OUTPUT] Gráfica de línea guardada en {image_name}")
+    def visitPlotOperation(self, ctx):
+        """Maneja las operaciones de graficado para líneas."""
+        try:
+            print("[DEBUG] Entrando a visitPlotOperation")
+            
+            # Evaluar las expresiones para X e Y
+            x_values = self.visit(ctx.expression(0))
+            y_values = self.visit(ctx.expression(1))
+            print(f"[DEBUG] Valores de X: {x_values}, Valores de Y: {y_values}")
+
+            # Validar que sean listas
+            if not isinstance(x_values, list) or not isinstance(y_values, list):
+                raise TypeError("[ERROR] Los valores X e Y deben ser listas.")
+            if len(x_values) != len(y_values):
+                raise ValueError(f"[ERROR] Las listas X e Y deben tener la misma longitud. Len(X): {len(x_values)}, Len(Y): {len(y_values)}")
+
+            # Graficar
+            plt.scatter(x_values, y_values, label='Datos', color='blue', s=100)  # Cambiado a scatter para consistencia
+            plt.plot(x_values, y_values, marker='o', linestyle='-', color='green', label='Línea')  # Línea con marcador
+            plt.xlabel("X")
+            plt.ylabel("Y")
+            plt.title("Gráfica de Línea")
+            plt.legend()
+            plt.grid(True)
+
+            # Guardar la gráfica
+            image_name = "plot_line.png"
+            print(f"[DEBUG] Guardando gráfica en {image_name}")
+            plt.savefig(image_name)  # Guardar la gráfica
+            plt.close()  # Cerrar la figura
+            self.log(f"[OUTPUT] Gráfica de línea guardada en {image_name}")
+            print(f"[DEBUG] Gráfica guardada correctamente en {image_name}")
+        except Exception as e:
+            self.log(f"[ERROR] Error en plotOperation: {e}")
+            print(f"[ERROR] Detalles del error: {e}")
 
 
 
@@ -234,6 +266,16 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             return left == right
         elif operator == '!=':
             return left != right
+        
+        
+    def visitMlFunction(self, ctx):
+        if ctx.getChild(0).getText() == 'multilayer_perceptron':
+            return self.visitMultilayerPerceptron(ctx)
+        elif ctx.getChild(0).getText() == 'kmeans_clustering':
+            return self.visitKmeansClustering(ctx)
+        elif ctx.getChild(0).getText() == 'linear_regression':
+            return self.visitLinearRegression(ctx)
+
 
     def visitMultilayerPerceptron(self, ctx):
         x_train = np.array(self.visit(ctx.expression(0)))
@@ -301,6 +343,39 @@ class MLanguajeInterpreter(MLanguajeVisitor):
                 self.log(f"[DEBUG] CSV escrito: {file_name}")
         except Exception as e:
             self.log(f"[ERROR] Error en operación de archivo: {e}")
+            
+    def visitLinearRegression(self, ctx):
+        """Maneja la regresión lineal."""
+        try:
+            # Extraer los datos de entrada (X e y)
+            x_train = np.array(self.visit(ctx.expression(0)))  # Primer argumento: X
+            y_train = np.array(self.visit(ctx.expression(1)))  # Segundo argumento: y
+
+            # Verificar si X es una lista unidimensional; de ser así, convertirla en una matriz de una sola columna
+            if x_train.ndim == 1:
+                x_train = x_train.reshape(-1, 1)
+
+            # Crear e entrenar el modelo de regresión lineal
+            model = LinearRegression()
+            model.fit(x_train, y_train)
+
+            # Extraer coeficientes e intercepto
+            coef = model.coef_
+            intercept = model.intercept_
+
+            self.log(f"[OUTPUT] Modelo de regresión entrenado. Coeficientes: {coef}, Intercepto: {intercept}")
+
+            # Si el usuario pasa un tercer argumento, predecimos
+            if ctx.expression(2) is not None:
+                x_test = np.array(self.visit(ctx.expression(2)))
+                if x_test.ndim == 1:
+                    x_test = x_test.reshape(-1, 1)
+                predictions = model.predict(x_test)
+                self.log(f"[OUTPUT] Predicciones para {x_test}: {predictions.tolist()}")
+
+        except Exception as e:
+            self.log(f"[ERROR] Error en regresión lineal: {e}")
+
 
     def get_summary(self):
         """Devuelve un resumen acumulado de los resultados."""
