@@ -34,7 +34,6 @@ ifStatement
     : 'if' '(' expression ')' '{' statement* '}' ('else' '{' statement* '}')?
     ;
 
-
 whileStatement
     : 'while' '(' expression ')' '{' statement* '}'
     ;
@@ -50,6 +49,8 @@ methodCall
 fileOperation
     : 'readFile' '(' STRING ')'
     | 'writeFile' '(' STRING ',' STRING ')'
+    | 'readCSV' '(' STRING ')'
+    | 'writeCSV' '(' STRING ',' expression ')'
     ;
 
 plotOperation
@@ -57,10 +58,9 @@ plotOperation
     | 'plotBar' '(' expression ',' expression ')'  # PlotBar
     ;
 
-
 mlFunction
-    : 'multilayer_perceptron' '(' expression ',' expression ')'
-    | 'kmeans_clustering' '(' expression ',' expression ',' expression ')'
+    : 'multilayer_perceptron' '(' expression ',' expression (',' expression (',' expression)?)? ')'
+    | 'kmeans_clustering' '(' expression ',' expression (',' expression)? ')'
     ;
 
 matrixOperation
@@ -82,8 +82,10 @@ expression
     | 'false'
     | ID '.' 'transpose' '(' ')'
     | ID '.' 'inverse' '(' ')'
+    | 'sin' '(' expression ')'
+    | 'cos' '(' expression ')'
+    | 'tan' '(' expression ')'
     ;
-
 
 list
     : '[' (expression (',' expression)*)? ']'

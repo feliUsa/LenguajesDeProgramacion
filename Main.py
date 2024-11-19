@@ -4,34 +4,35 @@ from antlrEjecucion.MLanguajeLexer import MLanguajeLexer
 from antlrEjecucion.MLanguajeParser import MLanguajeParser
 from MLanguajeInterpreter import MLanguajeInterpreter
 
-
 def main(argv):
     if len(argv) < 2:
-        print("Uso: python main.py <archivo_entrada>")
+        print("Uso: python Main.py <archivo_entrada>")
         return
 
-    # Abrir archivo de entrada y cargar el código fuente
     archivo_entrada = argv[1]
-    with open(archivo_entrada, 'r') as file:
-        codigo_fuente = file.read()
 
-    # Crear lexer y parser para el lenguaje
-    input_stream = InputStream(codigo_fuente)
-    lexer = MLanguajeLexer(input_stream)
-    stream = CommonTokenStream(lexer)
-    parser = MLanguajeParser(stream)
-
-    # Realizar el análisis sintáctico
-    tree = parser.program()
-
-    # Crear y ejecutar el intérprete de MLanguaje
-    interpreter = MLanguajeInterpreter()
     try:
-        result = interpreter.visit(tree)
-        print("Programa ejecutado exitosamente.")
-        print(result)
-    except Exception as e:
-        print(f"Error durante la ejecución: {e}")
+        with open(archivo_entrada, 'r') as file:
+            codigo_fuente = file.read()
+    except FileNotFoundError:
+        print(f"Error: El archivo {archivo_entrada} no existe.")
+        return
 
-if __name__ == '__main__':
+    print("Iniciando el procesamiento del código...")
+    try:
+        input_stream = InputStream(codigo_fuente)
+        lexer = MLanguajeLexer(input_stream)
+        stream = CommonTokenStream(lexer)
+        parser = MLanguajeParser(stream)
+        tree = parser.program()
+
+        interpreter = MLanguajeInterpreter()
+        interpreter.visit(tree)
+
+        print("\n=== Resumen de la Ejecución ===")
+        print(interpreter.get_summary())
+    except Exception as e:
+        print(f"Error durante el procesamiento o la interpretación: {e}")
+
+if __name__ == "__main__":
     main(sys.argv)
