@@ -3,7 +3,8 @@ from antlrEjecucion.MLanguajeParser import MLanguajeParser
 import math
 import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('Agg')
+import seaborn as sns
 import numpy as np
 from sklearn.neural_network import MLPClassifier
 from sklearn.linear_model import LinearRegression
@@ -141,43 +142,56 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             print(f"[ERROR] Detalles del error: {e}")
 
 
-
     def visitPlotOperation(self, ctx):
-        """Maneja las operaciones de graficado para líneas."""
+        """Maneja las operaciones de graficado usando Seaborn."""
         try:
-            print("[DEBUG] Entrando a visitPlotOperation")
-            
-            # Evaluar las expresiones para X e Y
-            x_values = self.visit(ctx.expression(0))
-            y_values = self.visit(ctx.expression(1))
-            print(f"[DEBUG] Valores de X: {x_values}, Valores de Y: {y_values}")
+            # Obtener el tipo de operación (plotLine o plotBar)
+            operation = ctx.getChild(0).getText()
 
-            # Validar que sean listas
-            if not isinstance(x_values, list) or not isinstance(y_values, list):
-                raise TypeError("[ERROR] Los valores X e Y deben ser listas.")
-            if len(x_values) != len(y_values):
-                raise ValueError(f"[ERROR] Las listas X e Y deben tener la misma longitud. Len(X): {len(x_values)}, Len(Y): {len(y_values)}")
+            # Evaluar las expresiones para los datos
+            x_or_categories = self.visit(ctx.expression(0))
+            y_or_values = self.visit(ctx.expression(1))
 
-            # Graficar
-            plt.scatter(x_values, y_values, label='Datos', color='blue', s=100)  # Cambiado a scatter para consistencia
-            plt.plot(x_values, y_values, marker='o', linestyle='-', color='green', label='Línea')  # Línea con marcador
-            plt.xlabel("X")
-            plt.ylabel("Y")
-            plt.title("Gráfica de Línea")
-            plt.legend()
-            plt.grid(True)
+            # Validar que los datos sean listas
+            if not isinstance(x_or_categories, list) or not isinstance(y_or_values, list):
+                raise TypeError("[ERROR] Los datos para graficar deben ser listas.")
 
-            # Guardar la gráfica
-            image_name = "plot_line.png"
-            print(f"[DEBUG] Guardando gráfica en {image_name}")
-            plt.savefig(image_name)  # Guardar la gráfica
-            plt.close()  # Cerrar la figura
-            self.log(f"[OUTPUT] Gráfica de línea guardada en {image_name}")
-            print(f"[DEBUG] Gráfica guardada correctamente en {image_name}")
+            # Verificar longitudes coincidentes
+            if len(x_or_categories) != len(y_or_values):
+                raise ValueError("[ERROR] Las listas X e Y deben tener la misma longitud.")
+
+            # Configuración inicial de la gráfica
+            plt.figure(figsize=(8, 6))
+            file_name = ""
+
+            # Generar la gráfica
+            if operation == 'plotLine':
+                print("[DEBUG] Generando gráfica de línea con Seaborn...")
+                sns.lineplot(x=x_or_categories, y=y_or_values, marker='o')
+                plt.title("Gráfica de Línea")
+                plt.xlabel("X")
+                plt.ylabel("Y")
+                plt.grid(True)
+                file_name = "plot_line.png"
+            elif operation == 'plotBar':
+                print("[DEBUG] Generando gráfica de barras con Seaborn...")
+                sns.barplot(x=x_or_categories, y=y_or_values, palette='viridis')
+                plt.title("Gráfica de Barras")
+                plt.xlabel("Categorías")
+                plt.ylabel("Valores")
+                file_name = "plot_bar.png"
+            else:
+                raise ValueError(f"[ERROR] Operación de graficado desconocida: {operation}")
+
+            # Guardar y cerrar la gráfica
+            plt.savefig(file_name, bbox_inches='tight')
+            plt.close()
+            print(f"[OUTPUT] Gráfica creada y guardada en '{file_name}'")
+            self.log(f"[OUTPUT] Gráfica creada y guardada en '{file_name}'")
+
         except Exception as e:
             self.log(f"[ERROR] Error en plotOperation: {e}")
             print(f"[ERROR] Detalles del error: {e}")
-
 
 
     def _executeStatements(self, statements):
@@ -295,51 +309,55 @@ class MLanguajeInterpreter(MLanguajeVisitor):
         
         
     def visitMatrixOperation(self, ctx):
-        """Maneja operaciones con matrices."""
-        print("[DEBUG] Visitando matrixOperation")
+        """Maneja operaciones de matrices como funciones."""
         try:
-            # Obtener el nombre de la matriz
-            matrix_name = ctx.ID().getText()
-            if matrix_name not in self.variables:
-                raise NameError(f"[ERROR] Matriz '{matrix_name}' no está definida.")
+            # Obtener el nombre de la operación
+            operation = ctx.getChild(0).getText()
 
-            # Obtener la operación
-            operation = ctx.getChild(2).getText()
-            matrix = self.variables[matrix_name]
-            print(f"[DEBUG] Matriz '{matrix_name}': {matrix}")
-            print(f"[DEBUG] Operación: {operation}")
+            # Evaluar las expresiones que representan las matrices
+            matrix1 = self.visit(ctx.expression(0))
+            matrix2 = self.visit(ctx.expression(1)) if ctx.expression(1) else None
 
-            # Operaciones binarias
-            if operation in ['add', 'subtract', 'multiply']:
-                other_matrix = self.visit(ctx.expression(0))
-                print(f"[DEBUG] Otra matriz: {other_matrix}")
-                if not isinstance(other_matrix, np.ndarray):
-                    raise TypeError(f"[ERROR] La operación '{operation}' requiere una matriz válida.")
-                if operation == 'add':
-                    result = np.add(matrix, other_matrix)
-                elif operation == 'subtract':
-                    result = np.subtract(matrix, other_matrix)
-                elif operation == 'multiply':
-                    result = np.dot(matrix, other_matrix)
+            # Validar que matrix1 sea una matriz válida
+            if not isinstance(matrix1, np.ndarray):
+                raise TypeError(f"[ERROR] La primera entrada no es una matriz válida: {matrix1}")
 
-            # Operaciones unarias
-            elif operation == 'transpose':
-                result = np.transpose(matrix)
-            elif operation == 'inverse':
-                if len(matrix) != len(matrix[0]):
+            # Realizar la operación correspondiente
+            if operation == 'addMatrix':
+                if matrix2 is None or not isinstance(matrix2, np.ndarray):
+                    raise ValueError("[ERROR] Se requiere una segunda matriz para la suma.")
+                if matrix1.shape != matrix2.shape:
+                    raise ValueError("[ERROR] Las matrices deben tener las mismas dimensiones para suma.")
+                result = np.add(matrix1, matrix2)
+            elif operation == 'subtractMatrix':
+                if matrix2 is None or not isinstance(matrix2, np.ndarray):
+                    raise ValueError("[ERROR] Se requiere una segunda matriz para la resta.")
+                if matrix1.shape != matrix2.shape:
+                    raise ValueError("[ERROR] Las matrices deben tener las mismas dimensiones para resta.")
+                result = np.subtract(matrix1, matrix2)
+            elif operation == 'multiplyMatrix':
+                if matrix2 is None or not isinstance(matrix2, np.ndarray):
+                    raise ValueError("[ERROR] Se requiere una segunda matriz para la multiplicación.")
+                if matrix1.shape[1] != matrix2.shape[0]:
+                    raise ValueError("[ERROR] El número de columnas de la primera matriz debe igualar el número de filas de la segunda matriz.")
+                result = np.dot(matrix1, matrix2)
+            elif operation == 'transposeMatrix':
+                result = np.transpose(matrix1)
+            elif operation == 'inverseMatrix':
+                if matrix1.shape[0] != matrix1.shape[1]:
                     raise ValueError("[ERROR] Solo se puede calcular la inversa de matrices cuadradas.")
-                result = np.linalg.inv(matrix)
+                result = np.linalg.inv(matrix1)
+            else:
+                raise ValueError(f"[ERROR] Operación desconocida: {operation}")
 
-            print(f"[DEBUG] Resultado de '{operation}': {result}")
-            self.variables[f"{matrix_name}_{operation}"] = result  # Guardar resultado
+            # Devolver el resultado
+            print(f"[DEBUG] Resultado de {operation}: {result}")
             return result
+
         except Exception as e:
             self.log(f"[ERROR] Error en matrixOperation: {e}")
             print(f"[ERROR] Detalles del error: {e}")
             return None
-
-
-
 
         
     def visitMlFunction(self, ctx):
@@ -418,8 +436,9 @@ class MLanguajeInterpreter(MLanguajeVisitor):
         except Exception as e:
             self.log(f"[ERROR] Error en operación de archivo: {e}")
             
+            
     def visitLinearRegression(self, ctx):
-        """Maneja la regresión lineal."""
+        """Maneja la regresión lineal y genera una gráfica."""
         try:
             # Extraer los datos de entrada (X e y)
             x_train = np.array(self.visit(ctx.expression(0)))  # Primer argumento: X
@@ -429,7 +448,7 @@ class MLanguajeInterpreter(MLanguajeVisitor):
             if x_train.ndim == 1:
                 x_train = x_train.reshape(-1, 1)
 
-            # Crear e entrenar el modelo de regresión lineal
+            # Crear y entrenar el modelo de regresión lineal
             model = LinearRegression()
             model.fit(x_train, y_train)
 
@@ -439,16 +458,33 @@ class MLanguajeInterpreter(MLanguajeVisitor):
 
             self.log(f"[OUTPUT] Modelo de regresión entrenado. Coeficientes: {coef}, Intercepto: {intercept}")
 
-            # Si el usuario pasa un tercer argumento, predecimos
-            if ctx.expression(2) is not None:
-                x_test = np.array(self.visit(ctx.expression(2)))
-                if x_test.ndim == 1:
-                    x_test = x_test.reshape(-1, 1)
-                predictions = model.predict(x_test)
-                self.log(f"[OUTPUT] Predicciones para {x_test}: {predictions.tolist()}")
+            # Generar predicciones para la gráfica
+            x_range = np.linspace(x_train.min(), x_train.max(), 100).reshape(-1, 1)
+            y_pred = model.predict(x_range)
+
+            # Graficar los datos de entrenamiento y la línea de regresión
+            plt.figure(figsize=(8, 6))
+            plt.scatter(x_train, y_train, color='blue', label='Datos de Entrenamiento', s=50)
+            plt.plot(x_range, y_pred, color='red', label='Línea de Regresión', linewidth=2)
+            plt.title("Regresión Lineal")
+            plt.xlabel("X")
+            plt.ylabel("Y")
+            plt.legend()
+            plt.grid(True)
+
+            # Guardar la gráfica
+            file_name = "linear_regression_plot.png"
+            plt.savefig(file_name, bbox_inches='tight')
+            plt.close()
+
+            # Mensaje de salida
+            print(f"[OUTPUT] Gráfica de regresión lineal guardada en '{file_name}'")
+            self.log(f"[OUTPUT] Gráfica de regresión lineal guardada en '{file_name}'")
 
         except Exception as e:
             self.log(f"[ERROR] Error en regresión lineal: {e}")
+            print(f"[ERROR] Detalles del error: {e}")
+
 
 
     def get_summary(self):

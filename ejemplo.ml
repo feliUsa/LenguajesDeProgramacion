@@ -23,9 +23,9 @@ print(d)
 print("=== Pruebas de Operaciones con Matrices ===")
 let A = matrix([[1, 2], [3, 4]])
 let B = matrix([[5, 6], [7, 8]])
-let C = A.add(B)
-let D = A.multiply(B)
-let E = A.transpose()
+let C = addMatrix(A, B)
+let D = multiplyMatrix(A, B)
+let E = transposeMatrix(A)
 print(C)
 print(D)
 print(E)
@@ -64,13 +64,15 @@ for x in [10, 20, 30] {
 }
 
 # 7. Visualización de datos
-print("=== Pruebas de Visualización de Datos ===")
-let x_vals = [1, 2, 3, 4, 5]
-let y_vals = [2, 4, 6, 8, 10]
-plotLine(x_vals, y_vals)
+print("=== Prueba de Gráfica de Líneas ===")
+let x = [1, 2, 3, 4, 5]
+let y = [2, 4, 6, 8, 10]
+plotLine(x, y)
 
-let y_vals_bar = [5, 7, 9, 11, 13]
-plotBar(x_vals, y_vals_bar)
+print("=== Prueba de Gráfica de Barras ===")
+let categorias = ["A", "B", "C", "D"]
+let valores = [10, 20, 15, 30]
+plotBar(categorias, valores)
 
 # 8. Operaciones con archivos
 print("=== Pruebas de Operaciones con Archivos ===")

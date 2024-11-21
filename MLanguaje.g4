@@ -65,12 +65,12 @@ mlFunction
     ;
 
 matrixOperation
-    : ID '.' ('add' | 'subtract' | 'multiply' | 'transpose' | 'inverse') '(' (expression (',' expression)?)? ')'
+    : ('addMatrix' | 'subtractMatrix' | 'multiplyMatrix' | 'transposeMatrix' | 'inverseMatrix') '(' expression (',' expression)? ')'
     ;
 
-
 expression
-    : expression ('+' | '-' | '*' | '/' | '%' | '^') expression
+    : matrixOperation
+    | expression ('+' | '-' | '*' | '/' | '%' | '^') expression
     | expression ('>' | '<' | '>=' | '<=' | '==' | '!=') expression
     | '(' expression ')'
     | '-'? NUMBER
@@ -79,12 +79,9 @@ expression
     | list
     | matrixConstructor
     | methodCall
-    | 'range' '(' expression (',' expression (',' expression)?)? ')' // Nuevo rango
-    | '-'? NUMBER
+    | 'range' '(' expression (',' expression (',' expression)?)? ')'
     | 'true'
     | 'false'
-    | ID '.' 'transpose' '(' ')'
-    | ID '.' 'inverse' '(' ')'
     | 'sin' '(' expression ')'
     | 'cos' '(' expression ')'
     | 'tan' '(' expression ')'
