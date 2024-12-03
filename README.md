@@ -9,13 +9,15 @@ Construcción de DSL (Lenguaje de dominio específico para realizar procesos de 
 
 1. Descargar codigo e ingresar a la carpeta en la terminal
 
-2. Modificar archivo test.ml a gusto
+2. Modificar archivo prueba.mlang a gusto
 
 3. Ingresar en consola:
 
-    * java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 -visitor -o antlrEjecucion MLanguaje.g4
+    * (opcion 1) antlr4 -Dlanguage=Python3 -visitor -o antlr_generated MLanguaje.g4
 
-    * python3 Main.py test.ml
+    * (opcion 2) java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 -visitor -o antlrEjecucion MLanguaje.g4
+
+    * python3 main.py prueba.mlang
 
 
 ---

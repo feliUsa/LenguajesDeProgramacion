@@ -92,3 +92,9 @@ print(transpuesta)
 
 
 ##############
+
+
+let data_csv = loadCSV("data.csv")
+let text = readFile("data.txt")
+print(data_csv)
+print(text)

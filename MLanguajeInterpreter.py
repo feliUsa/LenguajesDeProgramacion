@@ -1,4 +1,5 @@
 from antlr_generated.MLanguajeVisitor import MLanguajeVisitor
+from custom_library import read_csv_custom, read_txt_custom
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,18 +12,23 @@ variables = {}  # Diccionario global para almacenar variables
 class MLanguajeVisitorImplementation(MLanguajeVisitor):
 
     def visitProgram(self, ctx):
+        #print("[DEBUG] Visitando programa")
         for statement in ctx.statement():
             self.visit(statement)
 
     def visitVariableDeclaration(self, ctx):
         name = ctx.ID().getText()
         #print(f"[DEBUG] Declarando variable: {name}")
-        value = self.visit(ctx.expression())
-        #print(f"[DEBUG] Valor evaluado para {name}: {value}")
-        if value is None:
-            raise ValueError(f"Error al evaluar la expresión para la variable '{name}'.")
-        variables[name] = value
-        #print(f"[DEBUG] Variable '{name}' almacenada con valor: {variables[name]}")
+        try:
+            value = self.visit(ctx.expression())
+            #print(f"[DEBUG] Valor evaluado para '{name}': {value}")
+            if value is None:
+                raise ValueError(f"[ERROR] Error al evaluar la expresión para la variable '{name}'.")
+            variables[name] = value
+            #print(f"[DEBUG] Variable '{name}' almacenada con valor: {variables[name]}")
+        except Exception as e:
+            print(f"[ERROR] Excepción al evaluar la variable '{name}': {e}")
+            raise
 
 
     def visitPrintStatement(self, ctx):
@@ -78,6 +84,12 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             result = self.visitRangeExpr(ctx.rangeExpr())
             #print(f"[DEBUG] Rango evaluado: {list(result)}")
             return result
+        
+        elif ctx.fileOperation():  # Operaciones de archivo
+                #print(f"[DEBUG] Evaluando operación de archivo: {ctx.getText()}")
+                result = self.visitFileOperation(ctx.fileOperation())
+                #print(f"[DEBUG] Resultado de operación de archivo: {result}")
+                return result
 
         elif ctx.matrixOperation():  # Operaciones de matriz
             #print(f"[DEBUG] Evaluando operación de matriz como expresión: {ctx.getText()}")
@@ -200,26 +212,34 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             print(f"[ERROR] Error al realizar operación de matriz '{operation}': {e}")
             raise
 
-
-
-
     def visitFileOperation(self, ctx):
-        if ctx.writeFile():
-            filename = ctx.STRING(0).getText().strip('"')
-            content = ctx.STRING(1).getText().strip('"')
-            with open(filename, 'w') as f:
-                f.write(content)
-        elif ctx.readFile():
-            filename = ctx.STRING().getText().strip('"')
-            with open(filename, 'r') as f:
-                return f.read()
-        elif ctx.writeCSV():
-            filename = ctx.STRING().getText().strip('"')
-            content = self.visit(ctx.expression())
-            pd.DataFrame(content).to_csv(filename, index=False, header=False)
-        elif ctx.readCSV():
-            filename = ctx.STRING().getText().strip('"')
-            return pd.read_csv(filename, header=None).values.tolist()
+        operation = ctx.getChild(0).getText()  # Obtener la operación (por ejemplo, loadCSV)
+        if operation == "loadCSV":
+            filename = ctx.STRING(0).getText().strip('"')  # Accede al primer STRING
+            #print(f"Cargando archivo CSV: {filename}")
+            try:
+                data = read_csv_custom(filename)
+                #print(f"Archivo CSV cargado: {data}")
+                return data
+            except Exception as e:
+                print(f"[ERROR] Error al cargar archivo CSV '{filename}': {e}")
+                raise
+        elif operation == "readFile":
+            filename = ctx.STRING(0).getText().strip('"')  # Accede al primer STRING
+            #print(f"Leyendo archivo TXT: {filename}")
+            try:
+                data = read_txt_custom(filename)
+                #print(f"Archivo TXT cargado: {data}")
+                return data
+            except Exception as e:
+                print(f"[ERROR] Error al cargar archivo TXT '{filename}': {e}")
+                raise
+        else:
+            raise ValueError(f"[ERROR] Operación de archivo desconocida: {operation}")
+
+
+
+
 
     def visitVisualization(self, ctx):
         if ctx.plotLine():

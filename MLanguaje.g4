@@ -40,6 +40,7 @@ expression
     | list_
     | rangeExpr  // Añadido aquí para soportar rangos como expresiones
     | matrixOperation
+    | fileOperation
     | INT
     | FLOAT
     | ID
@@ -59,7 +60,8 @@ fileOperation
     | 'readFile' '(' STRING ')'
     | 'writeCSV' '(' STRING ',' expression ')'
     | 'readCSV' '(' STRING ')'
-    ;
+    | 'loadCSV' '(' STRING ')'; // Asegúrate de que esta línea esté presente
+
 
 visualization
     : 'plotLine' '(' expression ',' expression ')'
