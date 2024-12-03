@@ -1,0 +1,94 @@
+let a = 5
+let b = 10
+let c = a + b
+print("Resultado de c:")
+print(c)
+
+
+##############
+
+
+let x = 2
+let y = 3
+let potencia = power(x, y)
+let raiz = sqrt(potencia)
+print("Potencia:")
+print(potencia)
+print("Raíz cuadrada:")
+print(raiz)
+
+
+
+#################
+
+
+let contador = 0
+print("Bucle While:")
+while (contador < 5) {
+    print(contador)
+    let contador = contador + 1
+}
+
+
+#################
+
+
+let lista = [10, 20, 30, 40, 50]
+
+print("Elementos en la lista:")
+for x in lista {
+    print(x)
+}
+
+
+let rango = range(1, 6)
+
+print("Números del rango:")
+for x in rango {
+    print(x)
+}
+
+let lista = [2, 4, 6, 8, 10]
+
+print("Doble de cada número:")
+for num in lista {
+    let doble = num * 2
+    print(doble)
+}
+
+
+
+################
+
+
+
+let num = 10
+if (num > 5) {
+    print("El número es mayor que 5")
+} else {
+    print("El número es menor o igual a 5")
+}
+
+
+
+################
+
+
+let matrizA = [[1, 2], [3, 4]]
+let matrizB = [[5, 6], [7, 8]]
+
+let sumaMatrices = addMatrix(matrizA, matrizB)
+let productoMatrices = multiplyMatrix(matrizA, matrizB)
+
+print("Suma de matrices:")
+print(sumaMatrices)
+
+print("Producto de matrices:")
+print(productoMatrices)
+
+let transpuesta = transposeMatrix(matrizA)
+print("Transpuesta de matrizA:")
+print(transpuesta)
+
+
+##############

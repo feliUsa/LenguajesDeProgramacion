@@ -1,117 +1,83 @@
 grammar MLanguaje;
 
-program
-    : statement* EOF
-    ;
+program: (statement | NEWLINE)* EOF;
 
 statement
-    : varDeclaration
+    : variableDeclaration
+    | printStatement
     | ifStatement
-    | whileStatement
-    | forStatement
-    | methodCall
-    | functionDecl
-    | plotOperation
-    | 'print' '(' expression ')'
-    | fileOperation
-    | mlFunction
+    | whileLoop
+    | forLoop
+    | expressionStatement
     | matrixOperation
+    | fileOperation
+    | visualization
+    | NEWLINE
     ;
 
-varDeclaration
-    : 'let' ID '=' expression
-    ;
+variableDeclaration: 'let' ID '=' expression (NEWLINE | EOF);
 
-functionDecl
-    : 'def' ID '(' paramList? ')' '{' statement* '}'
-    ;
-
-paramList
-    : ID (',' ID)*
-    ;
+printStatement: 'print' '(' (STRING | expression) ')' (NEWLINE | EOF);
 
 ifStatement
-    : 'if' '(' expression ')' '{' statement* '}' ('else' '{' statement* '}')?
+    : 'if' '(' condition ')' '{' statement* '}' ('else' '{' statement* '}')?
     ;
 
-whileStatement
-    : 'while' '(' expression ')' '{' statement* '}'
+whileLoop: 'while' '(' condition ')' '{' statement+ '}';
+
+forLoop: 'for' ID 'in' (expression) '{' statement* '}';
+
+list_: '[' expression (',' expression)* ']';
+
+expressionStatement: expression (NEWLINE | EOF);
+
+expression
+    : expression ('+' | '-' | '*' | '/' | '**') expression
+    | 'sin' '(' expression ')'
+    | 'cos' '(' expression ')'
+    | 'power' '(' expression ',' expression ')'
+    | 'sqrt' '(' expression ')'
+    | list_
+    | rangeExpr  // Añadido aquí para soportar rangos como expresiones
+    | matrixOperation
+    | INT
+    | FLOAT
+    | ID
+    | STRING
     ;
 
-forStatement
-    : 'for' ID 'in' expression '{' statement* '}'
-    ;
 
-methodCall
-    : ID '.' ID '(' (expression (',' expression)*)? ')'
+matrixOperation
+    : 'addMatrix' '(' expression ',' expression ')' // Asegúrate de que use 'expression' para evaluar matrices
+    | 'multiplyMatrix' '(' expression ',' expression ')'
+    | 'transposeMatrix' '(' expression ')'
+    | 'inverseMatrix' '(' expression ')'
     ;
 
 fileOperation
-    : 'readFile' '(' STRING ')'
-    | 'writeFile' '(' STRING ',' STRING ')'
-    | 'readCSV' '(' STRING ')'
+    : 'writeFile' '(' STRING ',' STRING ')'
+    | 'readFile' '(' STRING ')'
     | 'writeCSV' '(' STRING ',' expression ')'
+    | 'readCSV' '(' STRING ')'
     ;
 
-plotOperation
-    : 'plotLine' '(' expression ',' expression ')' # PlotLine
-    | 'plotBar' '(' expression ',' expression ')'  # PlotBar
+visualization
+    : 'plotLine' '(' expression ',' expression ')'
+    | 'plotBar' '(' expression ',' expression ')'
+    | 'plotHistogram' '(' expression ')'
+    | 'plotScatter3D' '(' expression ',' expression ',' expression ')'
     ;
 
-mlFunction
-    : 'multilayer_perceptron' '(' expression ',' expression (',' expression (',' expression)?)? ')'
-    | 'kmeans_clustering' '(' expression ',' expression (',' expression)? ')'
-    | 'linear_regression' '(' expression ',' expression (',' expression)? ')' // Nueva regla
+condition
+    : expression ('>' | '<' | '==' | '!=' | '>=' | '<=') expression
     ;
 
-matrixOperation
-    : ('addMatrix' | 'subtractMatrix' | 'multiplyMatrix' | 'transposeMatrix' | 'inverseMatrix') '(' expression (',' expression)? ')'
-    ;
+rangeExpr: 'range' '(' INT (',' INT)? ')';
 
-expression
-    : matrixOperation
-    | expression ('+' | '-' | '*' | '/' | '%' | '^') expression
-    | expression ('>' | '<' | '>=' | '<=' | '==' | '!=') expression
-    | '(' expression ')'
-    | '-'? NUMBER
-    | STRING
-    | ID
-    | list
-    | matrixConstructor
-    | methodCall
-    | 'range' '(' expression (',' expression (',' expression)?)? ')'
-    | 'true'
-    | 'false'
-    | 'sin' '(' expression ')'
-    | 'cos' '(' expression ')'
-    | 'tan' '(' expression ')'
-    ;
-
-
-list
-    : '[' (expression (',' expression)*)? ']'
-    ;
-
-matrixConstructor
-    : 'matrix' '(' list ')'
-    ;
-
-ID
-    : [a-zA-Z_] [a-zA-Z_0-9]*
-    ;
-
-NUMBER
-    : [0-9]+ ('.' [0-9]+)?
-    ;
-
-STRING
-    : '"' (~["\\] | '\\' .)* '"'
-    ;
-
-WHITESPACE
-    : [ \t\r\n]+ -> skip
-    ;
-
-COMMENT
-    : '#' ~[\r\n]* -> skip
-    ;
+ID: [a-zA-Z_][a-zA-Z0-9_]*;
+STRING: '"' .*? '"';
+INT: [0-9]+;
+FLOAT: [0-9]+'.'[0-9]+;
+NEWLINE: '\r'? '\n';
+WS: [ \t]+ -> skip;
+LINE_COMMENT: '#' ~[\r\n]* -> skip;
