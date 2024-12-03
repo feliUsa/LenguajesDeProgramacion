@@ -50,11 +50,16 @@ expression
 
 
 matrixOperation
-    : 'addMatrix' '(' expression ',' expression ')' // Asegúrate de que use 'expression' para evaluar matrices
+    : 'addMatrix' '(' expression ',' expression ')'
     | 'multiplyMatrix' '(' expression ',' expression ')'
     | 'transposeMatrix' '(' expression ')'
     | 'inverseMatrix' '(' expression ')'
+    | 'linearRegressionFit' '(' expression ',' expression ')'
+    | 'linearRegressionPredict' '(' expression ',' expression ')'
+    | 'mlpFit' '(' expression ',' expression (',' expression (',' expression)?)? ')'
+    | 'mlpPredict' '(' expression ',' expression ')'
     ;
+
 
 fileOperation
     : 'writeFile' '(' STRING ',' STRING ')'

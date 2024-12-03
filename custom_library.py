@@ -53,3 +53,76 @@ def read_txt_custom(file_path):
         return [line.strip() for line in lines]
     except Exception as e:
         raise ValueError(f"Error al leer el archivo TXT '{file_path}': {e}")
+
+
+
+def linear_regression_fit(X, y):
+    """
+    Ajusta un modelo de regresión lineal utilizando la fórmula de mínimos cuadrados.
+    """
+    X = np.array(X)
+    y = np.array(y)
+    X = np.column_stack((np.ones(X.shape[0]), X))  # Añadir columna de unos para el término independiente
+    try:
+        beta = np.linalg.inv(X.T @ X) @ X.T @ y  # beta = (X'X)^(-1)X'y
+        return beta.tolist()
+    except np.linalg.LinAlgError:
+        raise ValueError("El modelo no se puede ajustar; matriz no invertible.")
+
+def linear_regression_predict(X, beta):
+    """
+    Predice valores utilizando un modelo de regresión lineal ajustado.
+    """
+    X = np.array(X)
+    X = np.column_stack((np.ones(X.shape[0]), X))  # Añadir columna de unos para el término independiente
+    return (X @ np.array(beta)).tolist()
+
+def mlp_fit(X, y, hidden_neurons=10, learning_rate=0.01, epochs=1000):
+    """
+    Entrena un perceptrón multicapa (MLP) con una capa oculta.
+    """
+    np.random.seed(42)  # Para reproducibilidad
+    X = np.array(X)
+    y = np.array(y).reshape(-1, 1)
+    input_neurons = X.shape[1]
+    output_neurons = y.shape[1]
+
+    # Inicialización de pesos
+    W1 = np.random.randn(input_neurons, hidden_neurons) * 0.01
+    b1 = np.zeros((1, hidden_neurons))
+    W2 = np.random.randn(hidden_neurons, output_neurons) * 0.01
+    b2 = np.zeros((1, output_neurons))
+
+    for epoch in range(epochs):
+        # Forward pass
+        Z1 = X @ W1 + b1
+        A1 = np.tanh(Z1)
+        Z2 = A1 @ W2 + b2
+        A2 = 1 / (1 + np.exp(-Z2))  # Sigmoide
+
+        # Backward pass
+        dZ2 = A2 - y
+        dW2 = A1.T @ dZ2
+        db2 = np.sum(dZ2, axis=0, keepdims=True)
+        dZ1 = (dZ2 @ W2.T) * (1 - np.power(A1, 2))
+        dW1 = X.T @ dZ1
+        db1 = np.sum(dZ1, axis=0, keepdims=True)
+
+        # Actualización de pesos
+        W1 -= learning_rate * dW1
+        b1 -= learning_rate * db1
+        W2 -= learning_rate * dW2
+        b2 -= learning_rate * db2
+
+    return {"W1": W1.tolist(), "b1": b1.tolist(), "W2": W2.tolist(), "b2": b2.tolist()}
+
+def mlp_predict(X, model):
+    """
+    Realiza predicciones con un modelo de MLP entrenado.
+    """
+    X = np.array(X)
+    Z1 = X @ np.array(model["W1"]) + np.array(model["b1"])
+    A1 = np.tanh(Z1)
+    Z2 = A1 @ np.array(model["W2"]) + np.array(model["b2"])
+    A2 = 1 / (1 + np.exp(-Z2))  # Sigmoide
+    return A2.tolist()

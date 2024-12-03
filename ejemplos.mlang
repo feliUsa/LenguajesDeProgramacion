@@ -125,3 +125,69 @@ let x = data[0]
 let y = data[1]
 plotLine(x, y)
 
+
+###############
+
+
+let X = [[1], [2], [3], [4], [5]]
+let y = [2, 4, 6, 8, 10]
+let beta = linearRegressionFit(X, y)
+print("Coeficientes:")
+print(beta)
+
+
+let X_test = [[6], [7], [8]]
+let predictions = linearRegressionPredict(X_test, beta)
+print("Predicciones:")
+print(predictions)
+
+
+###
+
+
+let X_train = [[1], [2], [3], [4]]
+let y_train = [2, 4, 6, 8]
+let X_test = [[5], [6], [7]]
+let beta = linearRegressionFit(X_train, y_train)
+let y_pred = linearRegressionPredict(X_test, beta)
+print("Resultados:")
+print(y_pred)
+
+# Graficar
+let X_full = [1, 2, 3, 4, 5, 6, 7]  # Combina entrenamiento y prueba
+let y_full = [2, 4, 6, 8] + y_pred  # Combina predicciones y valores reales
+plotLine(X_full, y_full)
+
+
+
+###############
+
+
+
+let X = [[0, 0], [0, 1], [1, 0], [1, 1]]
+let y = [[0], [1], [1], [0]]  # XOR
+let model = mlpFit(X, y, 4, 0.1, 1000)
+print("Modelo entrenado:")
+print(model)
+
+
+let X_test = [[0, 0], [0, 1], [1, 0], [1, 1]]
+let predictions = mlpPredict(X_test, model)
+print("Predicciones:")
+print(predictions)
+
+###
+
+let X = [[0, 0], [0, 1], [1, 0], [1, 1]]
+let y = [[0], [1], [1], [0]]
+let model = mlpFit(X, y, 4, 0.1, 2000)
+let test = [[0, 0], [0, 1], [1, 0], [1, 1]]
+let predictions = mlpPredict(test, model)
+print("Clasificación XOR:")
+print(predictions)
+
+# Graficar predicciones XOR (si plotLine no admite matrices 2D, simplifica la entrada)
+let x_vals = [0, 0, 1, 1]  # Primera columna de X
+let y_vals = [0, 1, 0, 1]  # Segunda columna de X
+plotLine(x_vals, predictions)
+

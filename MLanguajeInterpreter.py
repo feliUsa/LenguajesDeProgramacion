@@ -1,6 +1,7 @@
 
 from antlr_generated.MLanguajeVisitor import MLanguajeVisitor
 from custom_library import read_csv_custom, read_txt_custom
+from custom_library import linear_regression_fit, linear_regression_predict, mlp_fit, mlp_predict
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -208,7 +209,27 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
                     #print(f"[DEBUG] Resultado de inverseMatrix: {result}")
                     return result
                 else:
-                    raise ValueError("El argumento de inverseMatrix debe ser una matriz.")
+                    raise ValueError("El argumento de inverseMatrix debe ser una matriz.")   
+                
+            elif operation == "linearRegressionFit":
+                X = self.visit(ctx.expression(0))
+                y = self.visit(ctx.expression(1))
+                return linear_regression_fit(X, y)
+            elif operation == "linearRegressionPredict":
+                X = self.visit(ctx.expression(0))
+                beta = self.visit(ctx.expression(1))
+                return linear_regression_predict(X, beta)
+            elif operation == "mlpFit":
+                X = self.visit(ctx.expression(0))
+                y = self.visit(ctx.expression(1))
+                hidden_neurons = self.visit(ctx.expression(2)) if ctx.expression(2) else 10
+                learning_rate = self.visit(ctx.expression(3)) if ctx.expression(3) else 0.01
+                return mlp_fit(X, y, hidden_neurons, learning_rate)
+            elif operation == "mlpPredict":
+                X = self.visit(ctx.expression(0))
+                model = self.visit(ctx.expression(1))
+                return mlp_predict(X, model)
+            
         except Exception as e:
             print(f"[ERROR] Error al realizar operación de matriz '{operation}': {e}")
             raise
