@@ -125,6 +125,42 @@ class MLanguajeListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by MLanguajeParser#plotLine.
+    def enterPlotLine(self, ctx:MLanguajeParser.PlotLineContext):
+        pass
+
+    # Exit a parse tree produced by MLanguajeParser#plotLine.
+    def exitPlotLine(self, ctx:MLanguajeParser.PlotLineContext):
+        pass
+
+
+    # Enter a parse tree produced by MLanguajeParser#plotBar.
+    def enterPlotBar(self, ctx:MLanguajeParser.PlotBarContext):
+        pass
+
+    # Exit a parse tree produced by MLanguajeParser#plotBar.
+    def exitPlotBar(self, ctx:MLanguajeParser.PlotBarContext):
+        pass
+
+
+    # Enter a parse tree produced by MLanguajeParser#plotHistogram.
+    def enterPlotHistogram(self, ctx:MLanguajeParser.PlotHistogramContext):
+        pass
+
+    # Exit a parse tree produced by MLanguajeParser#plotHistogram.
+    def exitPlotHistogram(self, ctx:MLanguajeParser.PlotHistogramContext):
+        pass
+
+
+    # Enter a parse tree produced by MLanguajeParser#plotScatter3D.
+    def enterPlotScatter3D(self, ctx:MLanguajeParser.PlotScatter3DContext):
+        pass
+
+    # Exit a parse tree produced by MLanguajeParser#plotScatter3D.
+    def exitPlotScatter3D(self, ctx:MLanguajeParser.PlotScatter3DContext):
+        pass
+
+
     # Enter a parse tree produced by MLanguajeParser#condition.
     def enterCondition(self, ctx:MLanguajeParser.ConditionContext):
         pass

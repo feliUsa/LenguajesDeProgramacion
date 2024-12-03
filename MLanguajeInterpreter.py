@@ -1,3 +1,4 @@
+
 from antlr_generated.MLanguajeVisitor import MLanguajeVisitor
 from custom_library import read_csv_custom, read_txt_custom
 import math
@@ -238,32 +239,36 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             raise ValueError(f"[ERROR] Operación de archivo desconocida: {operation}")
 
 
-
-
-
     def visitVisualization(self, ctx):
         if ctx.plotLine():
-            x = self.visit(ctx.expression(0))
-            y = self.visit(ctx.expression(1))
+            #print("[DEBUG] Procesando plotLine")
+            x = self.visit(ctx.plotLine().expression(0))
+            y = self.visit(ctx.plotLine().expression(1))
             plt.plot(x, y)
             plt.show()
         elif ctx.plotBar():
-            categories = self.visit(ctx.expression(0))
-            values = self.visit(ctx.expression(1))
+            #print("[DEBUG] Procesando plotBar")
+            categories = self.visit(ctx.plotBar().expression(0))
+            values = self.visit(ctx.plotBar().expression(1))
             plt.bar(categories, values)
             plt.show()
         elif ctx.plotHistogram():
-            data = self.visit(ctx.expression(0))
+            #print("[DEBUG] Procesando plotHistogram")
+            data = self.visit(ctx.plotHistogram().expression(0))
             plt.hist(data)
             plt.show()
         elif ctx.plotScatter3D():
-            x = self.visit(ctx.expression(0))
-            y = self.visit(ctx.expression(1))
-            z = self.visit(ctx.expression(2))
+            #print("[DEBUG] Procesando plotScatter3D")
+            x = self.visit(ctx.plotScatter3D().expression(0))
+            y = self.visit(ctx.plotScatter3D().expression(1))
+            z = self.visit(ctx.plotScatter3D().expression(2))
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(x, y, z)
             plt.show()
+        else:
+            raise ValueError("[ERROR] Tipo de visualización desconocido.")
+
 
     def visitCondition(self, ctx):
         left = self.visit(ctx.expression(0))

@@ -74,6 +74,26 @@ class MLanguajeVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by MLanguajeParser#plotLine.
+    def visitPlotLine(self, ctx:MLanguajeParser.PlotLineContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by MLanguajeParser#plotBar.
+    def visitPlotBar(self, ctx:MLanguajeParser.PlotBarContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by MLanguajeParser#plotHistogram.
+    def visitPlotHistogram(self, ctx:MLanguajeParser.PlotHistogramContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by MLanguajeParser#plotScatter3D.
+    def visitPlotScatter3D(self, ctx:MLanguajeParser.PlotScatter3DContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by MLanguajeParser#condition.
     def visitCondition(self, ctx:MLanguajeParser.ConditionContext):
         return self.visitChildren(ctx)

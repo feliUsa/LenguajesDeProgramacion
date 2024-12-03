@@ -27,7 +27,8 @@ whileLoop: 'while' '(' condition ')' '{' statement+ '}';
 
 forLoop: 'for' ID 'in' (expression) '{' statement* '}';
 
-list_: '[' expression (',' expression)* ']';
+list_: '[' expression (',' expression)* ']' NEWLINE?;
+
 
 expressionStatement: expression (NEWLINE | EOF);
 
@@ -64,11 +65,16 @@ fileOperation
 
 
 visualization
-    : 'plotLine' '(' expression ',' expression ')'
-    | 'plotBar' '(' expression ',' expression ')'
-    | 'plotHistogram' '(' expression ')'
-    | 'plotScatter3D' '(' expression ',' expression ',' expression ')'
+    : plotLine
+    | plotBar
+    | plotHistogram
+    | plotScatter3D
     ;
+
+plotLine: 'plotLine' '(' expression ',' expression ')';
+plotBar: 'plotBar' '(' expression ',' expression ')';
+plotHistogram: 'plotHistogram' '(' expression ')';
+plotScatter3D: 'plotScatter3D' '(' expression ',' expression ',' expression ')';
 
 condition
     : expression ('>' | '<' | '==' | '!=' | '>=' | '<=') expression

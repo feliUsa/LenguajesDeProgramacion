@@ -1,4 +1,9 @@
-let data_csv = loadCSV("data.csv")
-let text = readFile("data.txt")
-print(data_csv)
-print(text)
+let x = [1, 2, 3, 4, 5]
+let y = [10, 20, 30, 40, 50]
+plotLine(x, y)
+
+
+let data = loadCSV("data.csv")
+let x = data[0]
+let y = data[1]
+plotLine(x, y)
