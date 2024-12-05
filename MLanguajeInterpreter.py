@@ -197,7 +197,11 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
 
 
     def visitList_(self, ctx):
-        return [self.visit(expr) for expr in ctx.expression()]
+        if ctx.getChildCount() == 2:  # Caso: []
+            return []
+        else:  # Caso: [1, 2, 3]
+            return [self.visit(expr) for expr in ctx.expression()]
+
 
 
     def visitMatrixOperation(self, ctx):

@@ -1,0 +1,17 @@
+let lista1 = []  # Lista vacía
+let lista2 = []  # Otra lista vacía
+
+for x in range(-6, 7) {
+    lista1 = lista1 + [x]
+}
+
+for x in lista1 {
+    let seno = sin(x)
+    lista2 = lista2 + [seno]
+}
+
+print("Lista 1 (valores originales):")
+print(lista1)
+
+print("Lista 2 (valores de seno):")
+print(lista2)

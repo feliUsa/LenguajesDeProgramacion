@@ -71,12 +71,12 @@ class MLanguajeListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by MLanguajeParser#listWithValues.
-    def enterListWithValues(self, ctx:MLanguajeParser.ListWithValuesContext):
+    # Enter a parse tree produced by MLanguajeParser#list_.
+    def enterList_(self, ctx:MLanguajeParser.List_Context):
         pass
 
-    # Exit a parse tree produced by MLanguajeParser#listWithValues.
-    def exitListWithValues(self, ctx:MLanguajeParser.ListWithValuesContext):
+    # Exit a parse tree produced by MLanguajeParser#list_.
+    def exitList_(self, ctx:MLanguajeParser.List_Context):
         pass
 
 

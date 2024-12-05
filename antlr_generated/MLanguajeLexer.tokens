@@ -55,6 +55,7 @@ FLOAT=54
 NEWLINE=55
 WS=56
 LINE_COMMENT=57
+SEMI=58
 'let'=1
 '='=2
 'print'=3
@@ -105,3 +106,4 @@ LINE_COMMENT=57
 '<='=48
 'calculateMetrics'=49
 'range'=50
+';'=58

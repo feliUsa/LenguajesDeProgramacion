@@ -44,8 +44,8 @@ class MLanguajeVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by MLanguajeParser#listWithValues.
-    def visitListWithValues(self, ctx:MLanguajeParser.ListWithValuesContext):
+    # Visit a parse tree produced by MLanguajeParser#list_.
+    def visitList_(self, ctx:MLanguajeParser.List_Context):
         return self.visitChildren(ctx)
 
 

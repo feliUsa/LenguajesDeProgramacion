@@ -15,9 +15,9 @@ statement
     | NEWLINE
     ;
 
-variableDeclaration: ( 'let' )? ID '=' expression (NEWLINE | EOF);
+variableDeclaration: ( 'let' )? ID '=' expression (NEWLINE | EOF | SEMI);
 
-printStatement: 'print' '(' (STRING | expression) ')' (NEWLINE | EOF);
+printStatement: 'print' '(' (STRING | expression) ')' (NEWLINE | EOF | SEMI);
 
 ifStatement
     : 'if' '(' condition ')' '{' statement* '}' ('else' '{' statement* '}')?
@@ -28,11 +28,12 @@ whileLoop: 'while' '(' condition ')' '{' statement+ '}';
 forLoop: 'for' ID 'in' (expression) '{' statement* '}';
 
 list_
-    : '[' expression (',' expression)* ']'  # listWithValues
+    : '[' (expression (',' expression)*)? ']'
     ;
 
 
-expressionStatement: expression (NEWLINE | EOF);
+
+expressionStatement: expression (NEWLINE | EOF | SEMI);
 
 expression
     : expression ('+' | '-' | '*' | '/' | '**') expression
@@ -99,8 +100,9 @@ rangeExpr: 'range' '(' INT (',' INT)? ')';
 
 ID: [a-zA-Z_][a-zA-Z0-9_]*;
 STRING: '"' .*? '"';
-INT: [0-9]+;
-FLOAT: [0-9]+'.'[0-9]+;
+INT: '-'? [0-9]+;
+FLOAT: '-'? [0-9]+'.'[0-9]+;
 NEWLINE: '\r'? '\n';
 WS: [ \t]+ -> skip;
 LINE_COMMENT: '#' ~[\r\n]* -> skip;
+SEMI: ';';
