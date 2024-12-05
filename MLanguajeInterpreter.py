@@ -1,7 +1,7 @@
 
 from antlr_generated.MLanguajeVisitor import MLanguajeVisitor
 from custom_library import read_csv_custom, read_txt_custom
-from custom_library import linear_regression_fit, linear_regression_predict, mlp_fit, mlp_predict
+from custom_library import linear_regression_fit, linear_regression_predict, mlp_fit, mlp_predict, calculate_metrics, generate_random_values
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,14 +19,14 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             self.visit(statement)
 
     def visitVariableDeclaration(self, ctx):
-        name = ctx.ID().getText()
+        name = ctx.ID().getText()  # Nombre de la variable
         #print(f"[DEBUG] Declarando variable: {name}")
         try:
-            value = self.visit(ctx.expression())
+            value = self.visit(ctx.expression())  # Evaluar la expresión asignada
             #print(f"[DEBUG] Valor evaluado para '{name}': {value}")
             if value is None:
                 raise ValueError(f"[ERROR] Error al evaluar la expresión para la variable '{name}'.")
-            variables[name] = value
+            variables[name] = value  # Almacenar la variable en el diccionario
             #print(f"[DEBUG] Variable '{name}' almacenada con valor: {variables[name]}")
         except Exception as e:
             print(f"[ERROR] Excepción al evaluar la variable '{name}': {e}")
@@ -35,12 +35,20 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
 
     def visitPrintStatement(self, ctx):
         if ctx.STRING():
-            print(ctx.STRING().getText().strip('"'))
+            #print(f"[DEBUG] Imprimiendo cadena: {ctx.STRING().getText().strip('\"')}")
+            print(ctx.STRING().getText().strip('\"'))
         else:
-            print(self.visit(ctx.expression()))
+            value = self.visit(ctx.expression())
+            #print(f"[DEBUG] Imprimiendo expresión evaluada: {value}")
+            print(value)
+
+
 
     def visitExpression(self, ctx):
         #print(f"[DEBUG] Evaluando expresión: {ctx.getText()}")
+        #print(f"[DEBUG] random: ctx.getChildCount() = {ctx.getChildCount()}")
+        #for i in range(ctx.getChildCount()):
+            #print(f"[DEBUG] Hijo {i}: {ctx.getChild(i).getText()}")
 
         if ctx.getChildCount() == 3:  # Operadores binarios
             left = self.visit(ctx.expression(0))
@@ -57,7 +65,8 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
                 return left / right
             elif operator == '**':
                 return left ** right
-
+            
+            
         elif ctx.getChildCount() == 4:  # Función unaria
             func = ctx.getChild(0).getText()
             value = self.visit(ctx.expression(0))
@@ -68,54 +77,78 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
                 return math.cos(value)
             elif func == 'sqrt':
                 return math.sqrt(value)
+            
+        elif ctx.getChildCount() == 8 and ctx.getChild(0).getText() == 'random':  # Función random
+            #print("[DEBUG] Detectada función random")
+            left = self.visit(ctx.expression(0))  # Primer argumento
+            right = self.visit(ctx.expression(1))  # Segundo argumento
+            size = self.visit(ctx.expression(2))  # Tercer argumento
+            #print(f"[DEBUG] Argumentos random - left: {left}, right: {right}, size: {size}")
 
-        elif ctx.getChildCount() == 6:  # Función binaria
-            func = ctx.getChild(0).getText()
-            left = self.visit(ctx.expression(0))
-            right = self.visit(ctx.expression(1))
-            #print(f"[DEBUG] Función binaria: {func}, Izquierda: {left}, Derecha: {right}")
-            if func == 'power':
-                return left ** right
-
+            # Validación de argumentos
+            #if not isinstance(left, (int, float)) or not isinstance(right, (int, float)):
+                #raise ValueError(f"[ERROR] Los límites de 'random' deben ser números. Recibido: left={left}, right={right}")
+            #if not isinstance(size, int) or size <= 0:
+                #raise ValueError(f"[ERROR] El tamaño de 'random' debe ser un entero positivo. Recibido: size={size}")
+            
+            # Generar valores aleatorios
+            result = generate_random_values(left, right, size)
+            #print(f"[DEBUG] Resultado de random: {result}")
+            return result
+        
+        elif ctx.getChildCount() == 2 and ctx.getChild(0).getText() == '-':  # Números negativos
+            value = self.visit(ctx.expression(0))
+            #print(f"[DEBUG] Evaluando número negativo: -{value}")
+            return -value
+        
+        
         elif ctx.list_():  # Si es una lista
             result = [self.visit(expr) for expr in ctx.list_().expression()]
             #print(f"[DEBUG] Lista evaluada: {result}")
             return result
-        
+
         elif ctx.rangeExpr():
             result = self.visitRangeExpr(ctx.rangeExpr())
             #print(f"[DEBUG] Rango evaluado: {list(result)}")
             return result
-        
+
         elif ctx.fileOperation():  # Operaciones de archivo
-                #print(f"[DEBUG] Evaluando operación de archivo: {ctx.getText()}")
-                result = self.visitFileOperation(ctx.fileOperation())
-                #print(f"[DEBUG] Resultado de operación de archivo: {result}")
-                return result
+            #print(f"[DEBUG] Evaluando operación de archivo: {ctx.getText()}")
+            result = self.visitFileOperation(ctx.fileOperation())
+            #print(f"[DEBUG] Resultado de operación de archivo: {result}")
+            return result
 
         elif ctx.matrixOperation():  # Operaciones de matriz
             #print(f"[DEBUG] Evaluando operación de matriz como expresión: {ctx.getText()}")
             result = self.visitMatrixOperation(ctx.matrixOperation())
             #print(f"[DEBUG] Resultado de operación de matriz: {result}")
             return result
-
+        
         elif ctx.INT():
-            return int(ctx.INT().getText())
+            value = int(ctx.INT().getText())
+            #print(f"[DEBUG] Valor INT: {value}")
+            return value
 
         elif ctx.FLOAT():
-            return float(ctx.FLOAT().getText())
-
+            value = float(ctx.FLOAT().getText())
+            #print(f"[DEBUG] Valor FLOAT: {value}")
+            return value
+        
         elif ctx.STRING():
-            return ctx.STRING().getText().strip('"')
+            value = ctx.STRING().getText().strip('"')
+            #print(f"[DEBUG] Valor STRING: {value}")
+            return value
 
         elif ctx.ID():
             var_name = ctx.ID().getText()
             if var_name not in variables:
-                raise ValueError(f"Variable '{var_name}' no está definida.")
+                raise ValueError(f"[ERROR] Variable '{var_name}' no está definida.")
             #print(f"[DEBUG] Variable referenciada: {var_name}, Valor: {variables[var_name]}")
             return variables[var_name]
 
+        print("[ERROR] La expresión no es válida.")
         return None
+
 
 
 
@@ -229,6 +262,12 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
                 X = self.visit(ctx.expression(0))
                 model = self.visit(ctx.expression(1))
                 return mlp_predict(X, model)
+            
+            
+            elif operation == "calculateMetrics":
+                y_true = self.visit(ctx.expression(0))
+                y_pred = self.visit(ctx.expression(1))
+                return calculate_metrics(y_true, y_pred)
             
         except Exception as e:
             print(f"[ERROR] Error al realizar operación de matriz '{operation}': {e}")

@@ -10,7 +10,7 @@ print(c)
 
 let x = 2
 let y = 3
-let potencia = power(x, y)
+let potencia = x ** y
 let raiz = sqrt(potencia)
 print("Potencia:")
 print(potencia)
@@ -191,3 +191,8 @@ let x_vals = [0, 0, 1, 1]  # Primera columna de X
 let y_vals = [0, 1, 0, 1]  # Segunda columna de X
 plotLine(x_vals, predictions)
 
+################
+
+
+let a = random(0, 10, 5);
+print(a);

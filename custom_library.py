@@ -126,3 +126,24 @@ def mlp_predict(X, model):
     Z2 = A1 @ np.array(model["W2"]) + np.array(model["b2"])
     A2 = 1 / (1 + np.exp(-Z2))  # Sigmoide
     return A2.tolist()
+
+
+def generate_random_values(start, end, size=1):
+    """
+    Genera valores aleatorios en un rango dado.
+    :param start: Límite inferior.
+    :param end: Límite superior.
+    :param size: Número de valores a generar.
+    :return: Lista de valores aleatorios.
+    """
+    return np.random.uniform(start, end, size).tolist()
+
+
+def calculate_metrics(y_true, y_pred):
+    """
+    Calcula métricas como el error cuadrático medio.
+    """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    mse = np.mean((y_true - y_pred) ** 2)
+    return {"mse": mse}

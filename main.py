@@ -13,6 +13,8 @@ def main(argv):
     tree = parser.program()
     visitor = MLanguajeVisitorImplementation()
     visitor.visit(tree)
+    #print(tree.toStringTree(recog=parser))
+
 
 if __name__ == "__main__":
     main(sys.argv)

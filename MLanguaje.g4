@@ -15,7 +15,7 @@ statement
     | NEWLINE
     ;
 
-variableDeclaration: 'let' ID '=' expression (NEWLINE | EOF);
+variableDeclaration: ( 'let' )? ID '=' expression (NEWLINE | EOF);
 
 printStatement: 'print' '(' (STRING | expression) ')' (NEWLINE | EOF);
 
@@ -27,7 +27,9 @@ whileLoop: 'while' '(' condition ')' '{' statement+ '}';
 
 forLoop: 'for' ID 'in' (expression) '{' statement* '}';
 
-list_: '[' expression (',' expression)* ']' NEWLINE?;
+list_
+    : '[' expression (',' expression)* ']'  # listWithValues
+    ;
 
 
 expressionStatement: expression (NEWLINE | EOF);
@@ -36,16 +38,18 @@ expression
     : expression ('+' | '-' | '*' | '/' | '**') expression
     | 'sin' '(' expression ')'
     | 'cos' '(' expression ')'
-    | 'power' '(' expression ',' expression ')'
     | 'sqrt' '(' expression ')'
+    | 'power' '(' expression ',' expression ')'
+    | 'random' '(' expression ',' expression (',' expression)? ')'  // Soporte para random
     | list_
-    | rangeExpr  // Añadido aquí para soportar rangos como expresiones
+    | rangeExpr
     | matrixOperation
     | fileOperation
     | INT
     | FLOAT
     | ID
     | STRING
+    | '[' ']'
     ;
 
 
@@ -84,6 +88,12 @@ plotScatter3D: 'plotScatter3D' '(' expression ',' expression ',' expression ')';
 condition
     : expression ('>' | '<' | '==' | '!=' | '>=' | '<=') expression
     ;
+
+functionCall
+    : 'random' '(' expression ',' expression (',' expression)? ')'
+    | 'calculateMetrics' '(' expression ',' expression ')'
+    ;
+
 
 rangeExpr: 'range' '(' INT (',' INT)? ')';
 
