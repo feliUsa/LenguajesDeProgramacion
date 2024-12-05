@@ -252,3 +252,11 @@ print("La longitud de la lista es:")
 print(longitud)
 
 
+######## Graficar Dataframes ########
+
+let df = loadCSVBig("Tasa de cambio del peso colombiano.csv")
+plotDataFrameHuge(df, "Columna_0", "Columna_1", "line")
+
+
+
+

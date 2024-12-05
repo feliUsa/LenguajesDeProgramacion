@@ -71,7 +71,10 @@ fileOperation
     | 'readFile' '(' STRING ')'
     | 'writeCSV' '(' STRING ',' expression ')'
     | 'readCSV' '(' STRING ')'
-    | 'loadCSV' '(' STRING ')'; // Asegúrate de que esta línea esté presente
+    | 'loadCSV' '(' STRING ')'
+    | 'loadCSVBig' '(' STRING ')'
+    ;
+
 
 
 visualization
@@ -79,8 +82,12 @@ visualization
     | plotBar
     | plotHistogram
     | plotScatter3D
+    | plotDataFrame
+    | plotDataFrameHuge
     ;
 
+plotDataFrameHuge: 'plotDataFrameHuge' '(' expression ',' STRING ',' STRING (',' STRING)? ')';
+plotDataFrame: 'plotDataFrame' '(' expression ',' STRING ',' STRING (',' STRING)? ')';
 plotLine: 'plotLine' '(' expression ',' expression ')';
 plotBar: 'plotBar' '(' expression ',' expression ')';
 plotHistogram: 'plotHistogram' '(' expression ')';

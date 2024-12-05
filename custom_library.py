@@ -1,3 +1,5 @@
+#custom_library.py
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -42,6 +44,17 @@ def read_csv_custom(file_path):
     except Exception as e:
         raise ValueError(f"Error al leer el archivo CSV '{file_path}': {e}")
 
+def read_csv_custom_big(file_path):
+    """
+    Lee un archivo CSV y lo devuelve como una lista de listas.
+    """
+    try:
+        data = pd.read_csv(file_path, skiprows=1)
+        data.columns = [f"Columna_{i}" for i in range(len(data.columns))]
+        print(f"[DEBUG] Columnas renombradas: {data.columns.tolist()}")
+        return data
+    except Exception as e:
+        raise ValueError(f"Error al leer el archivo CSV '{file_path}': {e}")
 
 def read_txt_custom(file_path):
     """
@@ -151,9 +164,37 @@ def calculate_metrics(y_true, y_pred):
 
 def length_custom(obj):
     """
-    Devuelve la longitud de un objeto como una lista o string.
+    Devuelve la longitud de un objeto compatible.
     """
-    if isinstance(obj, (list, str)):
+    if isinstance(obj, (list, str, np.ndarray)):
         return len(obj)
+    elif isinstance(obj, pd.DataFrame):
+        return obj.shape[0]  # Filas en un DataFrame
     else:
         raise ValueError(f"El objeto de tipo {type(obj).__name__} no soporta la operación de longitud.")
+
+
+def plot_dataframe(df, x_column, y_column, kind="line"):
+    """
+    Genera un gráfico a partir de un DataFrame.
+    :param df: DataFrame a graficar.
+    :param x_column: Nombre de la columna para el eje X.
+    :param y_column: Nombre de la columna para el eje Y.
+    :param kind: Tipo de gráfico ('line', 'bar', 'scatter', etc.).
+    """
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("El objeto proporcionado no es un DataFrame.")
+
+    if x_column not in df.columns or y_column not in df.columns:
+        raise ValueError(f"Las columnas '{x_column}' o '{y_column}' no existen en el DataFrame.")
+
+    if kind == "line":
+        df.plot(x=x_column, y=y_column, kind="line")
+    elif kind == "bar":
+        df.plot(x=x_column, y=y_column, kind="bar")
+    elif kind == "scatter":
+        df.plot(x=x_column, y=y_column, kind="scatter")
+    else:
+        raise ValueError(f"Tipo de gráfico no soportado: {kind}")
+
+    plt.show()

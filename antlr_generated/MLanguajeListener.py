@@ -125,6 +125,24 @@ class MLanguajeListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by MLanguajeParser#plotDataFrameHuge.
+    def enterPlotDataFrameHuge(self, ctx:MLanguajeParser.PlotDataFrameHugeContext):
+        pass
+
+    # Exit a parse tree produced by MLanguajeParser#plotDataFrameHuge.
+    def exitPlotDataFrameHuge(self, ctx:MLanguajeParser.PlotDataFrameHugeContext):
+        pass
+
+
+    # Enter a parse tree produced by MLanguajeParser#plotDataFrame.
+    def enterPlotDataFrame(self, ctx:MLanguajeParser.PlotDataFrameContext):
+        pass
+
+    # Exit a parse tree produced by MLanguajeParser#plotDataFrame.
+    def exitPlotDataFrame(self, ctx:MLanguajeParser.PlotDataFrameContext):
+        pass
+
+
     # Enter a parse tree produced by MLanguajeParser#plotLine.
     def enterPlotLine(self, ctx:MLanguajeParser.PlotLineContext):
         pass

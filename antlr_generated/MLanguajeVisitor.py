@@ -74,6 +74,16 @@ class MLanguajeVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by MLanguajeParser#plotDataFrameHuge.
+    def visitPlotDataFrameHuge(self, ctx:MLanguajeParser.PlotDataFrameHugeContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by MLanguajeParser#plotDataFrame.
+    def visitPlotDataFrame(self, ctx:MLanguajeParser.PlotDataFrameContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by MLanguajeParser#plotLine.
     def visitPlotLine(self, ctx:MLanguajeParser.PlotLineContext):
         return self.visitChildren(ctx)

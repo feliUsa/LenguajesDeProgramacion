@@ -1,8 +1,2 @@
-let lista = [1, 2, 3, 4, 5]
-
-# Obtener la longitud de la lista
-let longitud = length(lista)
-
-# Imprimir la longitud
-print("La longitud de la lista es:")
-print(longitud)
+let df = loadCSVBig("Tasa de cambio del peso colombiano.csv")
+plotDataFrameHuge(df, "Columna_0", "Columna_1", "line")

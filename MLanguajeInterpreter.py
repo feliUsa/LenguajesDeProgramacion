@@ -1,6 +1,8 @@
+# MLanguajeInterpreter.py
+
 from antlr_generated.MLanguajeVisitor import MLanguajeVisitor
 from custom_library import read_csv_custom, read_txt_custom
-from custom_library import linear_regression_fit, linear_regression_predict, mlp_fit, mlp_predict, calculate_metrics, generate_random_values, length_custom
+from custom_library import linear_regression_fit, linear_regression_predict, mlp_fit, mlp_predict, calculate_metrics, generate_random_values, length_custom, plot_dataframe, read_csv_custom_big
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -172,7 +174,47 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
         return None
 
 
+    def visitPlotDataFrame(self, ctx):
+        df = self.visit(ctx.expression(0))  # DataFrame
+        x_column = ctx.STRING(0).getText().strip('"')  # Columna X
+        y_column = ctx.STRING(1).getText().strip('"')  # Columna Y
+        kind = ctx.STRING(2).getText().strip('"') if ctx.STRING(2) else "line"  # Tipo de gráfico
 
+        if not isinstance(df, pd.DataFrame):
+            raise ValueError("[ERROR] El primer argumento de 'plotDataFrame' debe ser un DataFrame.")
+
+        try:
+            plot_dataframe(df, x_column, y_column, kind)  # Llama a la función de graficación
+        except Exception as e:
+            print(f"[ERROR] Error al graficar DataFrame: {e}")
+            raise
+        
+        
+    def visitPlotDataFrameHuge(self, ctx):
+        # Extraer el DataFrame (primer argumento)
+        df = self.visit(ctx.expression())  # Evalúa el primer argumento como DataFrame
+        
+        # Extraer los nombres de las columnas
+        x_column = ctx.STRING(0).getText().strip('"')  # Columna X
+        y_column = ctx.STRING(1).getText().strip('"')  # Columna Y
+        
+        # Extraer el tipo de gráfico, si está presente
+        kind = ctx.STRING(2).getText().strip('"') if ctx.STRING(2) else "line"
+
+        # Verificar que el DataFrame sea válido
+        if not isinstance(df, pd.DataFrame):
+            raise ValueError("[ERROR] El primer argumento de 'plotDataFrameHuge' debe ser un DataFrame.")
+        
+        # Verificar que las columnas existan en el DataFrame
+        if x_column not in df.columns or y_column not in df.columns:
+            raise ValueError(f"[ERROR] Las columnas '{x_column}' o '{y_column}' no existen en el DataFrame.")
+
+        # Intentar graficar el DataFrame
+        try:
+            plot_dataframe(df, x_column, y_column, kind)
+        except Exception as e:
+            print(f"[ERROR] Error al graficar DataFrame: {e}")
+            raise
 
 
     def visitIfStatement(self, ctx):
@@ -311,6 +353,14 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             except Exception as e:
                 print(f"[ERROR] Error al cargar archivo CSV '{filename}': {e}")
                 raise
+        elif operation == "loadCSVBig":
+            filename = ctx.STRING(0).getText().strip('"')  # Nombre del archivo
+            try:
+                data = read_csv_custom_big(filename)  # Usa el método para datos grandes
+                return data
+            except Exception as e:
+                print(f"[ERROR] Error al cargar archivo CSV grande '{filename}': {e}")
+                raise
         elif operation == "readFile":
             filename = ctx.STRING(0).getText().strip('"')  # Accede al primer STRING
             #print(f"Leyendo archivo TXT: {filename}")
@@ -327,24 +377,20 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
 
     def visitVisualization(self, ctx):
         if ctx.plotLine():
-            #print("[DEBUG] Procesando plotLine")
             x = self.visit(ctx.plotLine().expression(0))
             y = self.visit(ctx.plotLine().expression(1))
             plt.plot(x, y)
             plt.show()
         elif ctx.plotBar():
-            #print("[DEBUG] Procesando plotBar")
             categories = self.visit(ctx.plotBar().expression(0))
             values = self.visit(ctx.plotBar().expression(1))
             plt.bar(categories, values)
             plt.show()
         elif ctx.plotHistogram():
-            #print("[DEBUG] Procesando plotHistogram")
             data = self.visit(ctx.plotHistogram().expression(0))
             plt.hist(data)
             plt.show()
         elif ctx.plotScatter3D():
-            #print("[DEBUG] Procesando plotScatter3D")
             x = self.visit(ctx.plotScatter3D().expression(0))
             y = self.visit(ctx.plotScatter3D().expression(1))
             z = self.visit(ctx.plotScatter3D().expression(2))
@@ -352,8 +398,34 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(x, y, z)
             plt.show()
+        elif ctx.plotDataFrame():
+            self.visitPlotDataFrame(ctx.plotDataFrame())
+        elif ctx.plotDataFrameHuge():
+            self.visitPlotDataFrameHuge(ctx.plotDataFrameHuge())
         else:
             raise ValueError("[ERROR] Tipo de visualización desconocido.")
+
+
+    def visitPlotDataFrame(self, ctx):
+        # Extraer el DataFrame de la primera expresión
+        df = self.visit(ctx.getChild(2))  # El tercer hijo (índice 2) es la primera expresión (DataFrame)
+        
+        # Extraer los nombres de las columnas (STRING)
+        x_column = ctx.getChild(4).getText().strip('"')  # El quinto hijo (índice 4) es el primer STRING (x_column)
+        y_column = ctx.getChild(6).getText().strip('"')  # El séptimo hijo (índice 6) es el segundo STRING (y_column)
+        
+        # Opcional: Extraer el tipo de gráfico, si está presente
+        kind = ctx.getChild(8).getText().strip('"') if ctx.getChildCount() > 8 else "line"
+
+        if not isinstance(df, pd.DataFrame):
+            raise ValueError("[ERROR] El primer argumento de 'plotDataFrame' debe ser un DataFrame.")
+
+        try:
+            plot_dataframe(df, x_column, y_column, kind)  # Llama a la función de graficación
+        except Exception as e:
+            print(f"[ERROR] Error al graficar DataFrame: {e}")
+            raise
+
 
 
     def visitCondition(self, ctx):
