@@ -31,8 +31,6 @@ list_
     : '[' (expression (',' expression)*)? ']'
     ;
 
-
-
 expressionStatement: expression (NEWLINE | EOF | SEMI);
 
 expression
@@ -41,7 +39,9 @@ expression
     | 'cos' '(' expression ')'
     | 'sqrt' '(' expression ')'
     | 'power' '(' expression ',' expression ')'
-    | 'random' '(' expression ',' expression (',' expression)? ')'  // Soporte para random
+    | 'random' '(' expression ',' expression (',' expression)? ')'
+    | 'length' '(' expression ')' // Soporte para length(variable)
+    | ID '[' expression ']'       // Acceso a índice
     | list_
     | rangeExpr
     | matrixOperation

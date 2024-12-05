@@ -1,6 +1,6 @@
 from antlr_generated.MLanguajeVisitor import MLanguajeVisitor
 from custom_library import read_csv_custom, read_txt_custom
-from custom_library import linear_regression_fit, linear_regression_predict, mlp_fit, mlp_predict, calculate_metrics, generate_random_values
+from custom_library import linear_regression_fit, linear_regression_predict, mlp_fit, mlp_predict, calculate_metrics, generate_random_values, length_custom
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -66,6 +66,25 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
                 return left ** right
             
             
+        elif ctx.getChildCount() == 4 and ctx.getChild(0).getText() == 'length':  # Función length(variable)
+            obj = self.visit(ctx.expression(0))  # Evaluar el argumento de la función
+            if obj is None:
+                raise ValueError(f"[ERROR] El argumento pasado a 'length' no es válido: {ctx.getText()}")
+            return length_custom(obj)  # Usar la función definida en custom_library
+
+            
+            
+        elif ctx.getChildCount() == 4 and ctx.getChild(1).getText() == '[':  # Acceso a índices
+            var_name = ctx.getChild(0).getText()
+            index = self.visit(ctx.getChild(2))
+            if var_name not in variables or not isinstance(variables[var_name], list):
+                raise ValueError(f"'{var_name}' no es una lista o no está definida.")
+            if not isinstance(index, int):
+                raise ValueError(f"El índice debe ser un número entero. Recibido: {type(index).__name__}")
+            if index < 0 or index >= len(variables[var_name]):
+                raise IndexError(f"Índice {index} fuera de rango para la lista '{var_name}'.")
+            return variables[var_name][index]
+
         elif ctx.getChildCount() == 4:  # Función unaria
             func = ctx.getChild(0).getText()
             value = self.visit(ctx.expression(0))
@@ -93,13 +112,17 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             # Generar valores aleatorios
             result = generate_random_values(left, right, size)
             #print(f"[DEBUG] Resultado de random: {result}")
+            
+            if size == 1:
+                return result[0]
+            
             return result
         
         elif ctx.getChildCount() == 2 and ctx.getChild(0).getText() == '-':  # Números negativos
             value = self.visit(ctx.expression(0))
             #print(f"[DEBUG] Evaluando número negativo: -{value}")
             return -value
-        
+
         
         elif ctx.list_():  # Si es una lista
             result = [self.visit(expr) for expr in ctx.list_().expression()]

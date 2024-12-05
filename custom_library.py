@@ -147,3 +147,13 @@ def calculate_metrics(y_true, y_pred):
     y_pred = np.array(y_pred)
     mse = np.mean((y_true - y_pred) ** 2)
     return {"mse": mse}
+
+
+def length_custom(obj):
+    """
+    Devuelve la longitud de un objeto como una lista o string.
+    """
+    if isinstance(obj, (list, str)):
+        return len(obj)
+    else:
+        raise ValueError(f"El objeto de tipo {type(obj).__name__} no soporta la operación de longitud.")

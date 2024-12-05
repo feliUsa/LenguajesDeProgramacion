@@ -1,4 +1,4 @@
-# Operaciones Basicas
+######## Operaciones Basicas ########
 
 let a = 5;
 let b = 10;
@@ -8,7 +8,7 @@ print("Resultado de la suma:");
 print(c);
 
 
-# Potencias y Raices
+######## Potencias y Raices ########
 
 let x = 2;
 let y = 3;
@@ -23,7 +23,7 @@ print("Raíz cuadrada:");
 print(raiz);
 
 
-# Bucle while
+######## Bucle while ########
 
 let contador = 0;
 
@@ -35,7 +35,7 @@ while (contador < 5) {
 
 
 
-# Bucle for
+######### Bucle for ########
 
 let lista = [10, 20, 30, 40, 50];
 
@@ -67,7 +67,7 @@ for num in lista2 {
 ---
 
 
-# Condicional if-else
+######## Condicional if-else ########
 
 let num = 10;
 
@@ -78,7 +78,7 @@ if (num > 5) {
 }
 
 
-# Operaciones con matrices
+######## Operaciones con matrices ########
 
 
 let matrizA = [[1, 2], [3, 4]];
@@ -98,7 +98,7 @@ print("Transpuesta de matrizA:");
 print(transpuesta);
 
 
-# Manejo de archivos
+######## Manejo de archivos ########
 
 let data_csv = loadCSV("data.csv");
 let text = readFile("data.txt");
@@ -127,7 +127,7 @@ for line in lines {
 }
 
 
-# Visualizacion
+######## Visualizacion graficas ########
 
 let x = [1, 2, 3, 4, 5];
 let y = [10, 20, 30, 40, 50];
@@ -145,7 +145,7 @@ plotLine(x, y);
 
 
 
-# Regresion Lineal
+######## Regresion Lineal ########
 
 let X = [[1], [2], [3], [4], [5]];
 let y = [2, 4, 6, 8, 10];
@@ -174,7 +174,7 @@ let y_full = y_train + y_pred;
 plotLine(X_full, y_full);
 
 
-# Red Neuronal Multicapa
+######## Red Neuronal Multicapa ########
 
 let X = [[0, 0], [0, 1], [1, 0], [1, 1]];
 let y = [[0], [1], [1], [0]];
@@ -190,7 +190,7 @@ print("Predicciones XOR:");
 print(predictions);
 
 
-# Aleatorios
+######## Aleatorios ########
 
 let a = random(0, 10, 5);
 
@@ -198,7 +198,7 @@ print("Números aleatorios:");
 print(a);
 
 
-# Llenar arreglos vacios
+######## Llenar arreglos vacios ########
 
 let lista1 = [];
 let lista2 = [];
@@ -213,10 +213,42 @@ for x in lista1 {
     lista2 = lista2 + [seno];
 }
 
-# Mostramos ambas listas
+
 print("Lista 1 (valores originales):");
 print(lista1);
 
 print("Lista 2 (valores de seno):");
 print(lista2);
+
+
+######## Llenar arreglos vacios aleatoriamente ########
+
+let lista1 = []
+let lista2 = []
+
+for x in random(-10, 10, 10) {
+    lista1 = lista1 + [x]
+}
+
+for x in lista1 {
+    let seno = sin(x)
+    lista2 = lista2 + [seno]
+}
+
+print("Lista 1 (valores aleatorios):")
+print(lista1)
+
+print("Lista 2 (valores de seno):")
+print(lista2)
+
+
+######## Longitud de una lista ########
+
+let lista = [1, 2, 3, 4, 5]
+
+let longitud = length(lista)
+
+print("La longitud de la lista es:")
+print(longitud)
+
 
