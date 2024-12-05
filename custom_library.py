@@ -51,7 +51,7 @@ def read_csv_custom_big(file_path):
     try:
         data = pd.read_csv(file_path, skiprows=1)
         data.columns = [f"Columna_{i}" for i in range(len(data.columns))]
-        print(f"[DEBUG] Columnas renombradas: {data.columns.tolist()}")
+        #print(f"[DEBUG] Columnas renombradas: {data.columns.tolist()}")
         return data
     except Exception as e:
         raise ValueError(f"Error al leer el archivo CSV '{file_path}': {e}")
@@ -71,24 +71,34 @@ def read_txt_custom(file_path):
 
 def linear_regression_fit(X, y):
     """
-    Ajusta un modelo de regresión lineal utilizando la fórmula de mínimos cuadrados.
+    Ajusta una regresión lineal simple y devuelve los coeficientes m y b (pendiente e intersección).
     """
-    X = np.array(X)
+    # Convertir a arrays 1D para simplificar cálculos
+    X = np.array(X).flatten()
     y = np.array(y)
-    X = np.column_stack((np.ones(X.shape[0]), X))  # Añadir columna de unos para el término independiente
-    try:
-        beta = np.linalg.inv(X.T @ X) @ X.T @ y  # beta = (X'X)^(-1)X'y
-        return beta.tolist()
-    except np.linalg.LinAlgError:
-        raise ValueError("El modelo no se puede ajustar; matriz no invertible.")
 
-def linear_regression_predict(X, beta):
-    """
-    Predice valores utilizando un modelo de regresión lineal ajustado.
-    """
-    X = np.array(X)
-    X = np.column_stack((np.ones(X.shape[0]), X))  # Añadir columna de unos para el término independiente
-    return (X @ np.array(beta)).tolist()
+    # Cálculo de medias
+    mean_x = np.mean(X)
+    mean_y = np.mean(y)
+
+    # Cálculo de la pendiente (m)
+    numerator = np.sum((X - mean_x) * (y - mean_y))
+    denominator = np.sum((X - mean_x) ** 2)
+    m = numerator / denominator
+
+    # Cálculo de la intersección (b)
+    b = mean_y - m * mean_x
+
+    return m, b  # Retorna como tupla
+
+
+    
+
+def linear_regression_predict(X, m, b, decimals=4):
+    X = np.array(X).flatten()
+    predictions = m * X + b
+    return [float(round(pred, decimals)) for pred in predictions]
+
 
 def mlp_fit(X, y, hidden_neurons=10, learning_rate=0.01, epochs=1000):
     """
@@ -153,13 +163,11 @@ def generate_random_values(start, end, size=1):
 
 
 def calculate_metrics(y_true, y_pred):
-    """
-    Calcula métricas como el error cuadrático medio.
-    """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
     mse = np.mean((y_true - y_pred) ** 2)
-    return {"mse": mse}
+    return {"mse": round(mse, 4)}
+
 
 
 def length_custom(obj):
@@ -172,6 +180,17 @@ def length_custom(obj):
         return obj.shape[0]  # Filas en un DataFrame
     else:
         raise ValueError(f"El objeto de tipo {type(obj).__name__} no soporta la operación de longitud.")
+
+
+def plot_regression(X_train, y_train, X_test, y_test, beta):
+    X_all = np.vstack((X_train, X_test))
+    y_pred = np.array([sum([b * x for b, x in zip(beta, [1] + list(row))]) for row in X_all])
+    
+    plt.scatter(X_train, y_train, label="Datos de entrenamiento", marker="o")
+    plt.scatter(X_test, y_test, label="Predicciones", marker="x")
+    plt.plot(X_all, y_pred, label="Línea ajustada", linestyle="--")
+    plt.legend()
+    plt.show()
 
 
 def plot_dataframe(df, x_column, y_column, kind="line"):

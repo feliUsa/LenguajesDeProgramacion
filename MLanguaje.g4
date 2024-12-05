@@ -15,7 +15,8 @@ statement
     | NEWLINE
     ;
 
-variableDeclaration: ( 'let' )? ID '=' expression (NEWLINE | EOF | SEMI);
+variableDeclaration: ( 'let' )? ID (',' ID)* '=' expression (NEWLINE | EOF | SEMI);
+
 
 printStatement: 'print' '(' (STRING | expression) ')' (NEWLINE | EOF | SEMI);
 
@@ -84,8 +85,10 @@ visualization
     | plotScatter3D
     | plotDataFrame
     | plotDataFrameHuge
+    | plotRegressionLine
     ;
 
+plotRegressionLine: 'plotRegressionLine' '(' expression ',' expression ',' expression ',' expression ')';
 plotDataFrameHuge: 'plotDataFrameHuge' '(' expression ',' STRING ',' STRING (',' STRING)? ')';
 plotDataFrame: 'plotDataFrame' '(' expression ',' STRING ',' STRING (',' STRING)? ')';
 plotLine: 'plotLine' '(' expression ',' expression ')';

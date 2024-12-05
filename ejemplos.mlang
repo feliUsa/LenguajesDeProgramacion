@@ -147,31 +147,24 @@ plotLine(x, y);
 
 ######## Regresion Lineal ########
 
-let X = [[1], [2], [3], [4], [5]];
-let y = [2, 4, 6, 8, 10];
+let X_train = [[1], [2], [3], [4], [5]];
+let y_train = [2, 4, 6, 8, 10];
 
-let beta = linearRegressionFit(X, y);
+let m, b = linearRegressionFit(X_train, y_train);
 
-print("Coeficientes:");
-print(beta);
+print("Pendiente (m):");
+print(m);
+print("Intersección (b):");
+print(b);
 
 let X_test = [[6], [7], [8]];
-let predictions = linearRegressionPredict(X_test, beta);
+let predictions = linearRegressionPredict(X_test, [m, b]);
 
 print("Predicciones:");
 print(predictions);
 
----
+plotRegressionLine(X_train, y_train, m, b);
 
-
-let X_train = [1, 2, 3, 4];
-let y_train = [2, 4, 6, 8];
-let y_pred = linearRegressionPredict([[5], [6], [7]], beta);
-
-let X_full = X_train + [5, 6, 7];
-let y_full = y_train + y_pred;
-
-plotLine(X_full, y_full);
 
 
 ######## Red Neuronal Multicapa ########

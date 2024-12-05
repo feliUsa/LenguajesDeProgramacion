@@ -19,7 +19,7 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
         for statement in ctx.statement():
             self.visit(statement)
 
-    def visitVariableDeclaration(self, ctx):
+    def visitVariableDeclarationOrignial(self, ctx):
         name = ctx.ID().getText()  # Nombre de la variable
         #print(f"[DEBUG] Declarando variable: {name}")
         try:
@@ -32,6 +32,22 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
         except Exception as e:
             print(f"[ERROR] Excepción al evaluar la variable '{name}': {e}")
             raise
+        
+        
+    def visitVariableDeclaration(self, ctx):
+        # Obtener nombres de las variables
+        names = [var.getText() for var in ctx.ID()]
+        # Evaluar la expresión
+        value = self.visit(ctx.expression())
+        
+        if len(names) == 1:
+            variables[names[0]] = value
+        else:
+            # Asegúrate de que la expresión retorna un iterable con valores
+            if not isinstance(value, (list, tuple)) or len(value) != len(names):
+                raise ValueError("[ERROR] Asignación múltiple: número de valores no coincide con el número de variables.")
+            for name, val in zip(names, value):
+                variables[name] = val
 
 
     def visitPrintStatement(self, ctx):
@@ -315,11 +331,18 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             elif operation == "linearRegressionFit":
                 X = self.visit(ctx.expression(0))
                 y = self.visit(ctx.expression(1))
-                return linear_regression_fit(X, y)
+                result = linear_regression_fit(X, y)  # Obtiene (m, b) como tupla
+                return list(result)  # Convierte en lista para facilitar el manejo en la gramática
+
+
             elif operation == "linearRegressionPredict":
                 X = self.visit(ctx.expression(0))
-                beta = self.visit(ctx.expression(1))
-                return linear_regression_predict(X, beta)
+                coefficients = self.visit(ctx.expression(1))  # Obtiene lista con [m, b]
+                if not isinstance(coefficients, list) or len(coefficients) != 2:
+                    raise ValueError("[ERROR] Coeficientes no válidos para predicción.")
+                m, b = coefficients  # Desempaqueta los coeficientes
+                return linear_regression_predict(X, m, b)
+
             elif operation == "mlpFit":
                 X = self.visit(ctx.expression(0))
                 y = self.visit(ctx.expression(1))
@@ -398,12 +421,15 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(x, y, z)
             plt.show()
+        elif ctx.plotRegressionLine():
+            self.visitPlotRegressionLine(ctx.plotRegressionLine())
         elif ctx.plotDataFrame():
             self.visitPlotDataFrame(ctx.plotDataFrame())
         elif ctx.plotDataFrameHuge():
             self.visitPlotDataFrameHuge(ctx.plotDataFrameHuge())
         else:
             raise ValueError("[ERROR] Tipo de visualización desconocido.")
+
 
 
     def visitPlotDataFrame(self, ctx):
@@ -425,6 +451,30 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
         except Exception as e:
             print(f"[ERROR] Error al graficar DataFrame: {e}")
             raise
+
+
+    def visitPlotRegressionLine(self, ctx):
+        X_train = self.visit(ctx.expression(0))  # Datos X de entrenamiento
+        y_train = self.visit(ctx.expression(1))  # Datos y de entrenamiento
+        m = self.visit(ctx.expression(2))        # Pendiente
+        b = self.visit(ctx.expression(3))        # Intersección
+
+        # Convertir X_train y y_train a arrays
+        X_train = np.array(X_train).flatten()
+        y_train = np.array(y_train)
+
+        # Generar valores ajustados usando la ecuación de la recta
+        X_fit = np.linspace(X_train.min(), X_train.max(), 100)  # Rango de X
+        y_fit = m * X_fit + b                                   # Recta ajustada
+
+        # Graficar datos y línea de regresión
+        plt.scatter(X_train, y_train, label="Datos de entrenamiento", color="blue")
+        plt.plot(X_fit, y_fit, label=f"Línea ajustada (y = {m:.2f}x + {b:.2f})", color="red")
+        plt.xlabel("X")
+        plt.ylabel("Y")
+        plt.legend()
+        plt.title("Regresión Lineal")
+        plt.show()
 
 
 
