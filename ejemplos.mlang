@@ -1,198 +1,200 @@
-let a = 5
-let b = 10
-let c = a + b
-print("Resultado de c:")
-print(c)
+# Operaciones Basicas
+
+let a = 5;
+let b = 10;
+let c = a + b;
+
+print("Resultado de la suma:");
+print(c);
 
 
-##############
+# Potencias y Raices
+
+let x = 2;
+let y = 3;
+
+let potencia = x ** y;
+let raiz = sqrt(potencia);
+
+print("Potencia:");
+print(potencia);
+
+print("Raíz cuadrada:");
+print(raiz);
 
 
-let x = 2
-let y = 3
-let potencia = x ** y
-let raiz = sqrt(potencia)
-print("Potencia:")
-print(potencia)
-print("Raíz cuadrada:")
-print(raiz)
+# Bucle while
 
+let contador = 0;
 
-
-#################
-
-
-let contador = 0
-print("Bucle While:")
+print("Conteo con while:");
 while (contador < 5) {
-    print(contador)
-    let contador = contador + 1
+    print(contador);
+    let contador = contador + 1;
 }
 
 
-#################
 
+# Bucle for
 
-let lista = [10, 20, 30, 40, 50]
+let lista = [10, 20, 30, 40, 50];
 
-print("Elementos en la lista:")
+print("Elementos de la lista:");
 for x in lista {
-    print(x)
+    print(x);
 }
 
+---
 
-let rango = range(1, 6)
+let rango = range(1, 6);
 
-print("Números del rango:")
+print("Números del rango:");
 for x in rango {
-    print(x)
+    print(x);
 }
 
-let lista = [2, 4, 6, 8, 10]
+---
 
-print("Doble de cada número:")
-for num in lista {
-    let doble = num * 2
-    print(doble)
+
+let lista2 = [2, 4, 6, 8, 10];
+
+print("Doble de cada número:");
+for num in lista2 {
+    let doble = num * 2;
+    print(doble);
 }
 
+---
 
 
-################
+# Condicional if-else
 
+let num = 10;
 
-
-let num = 10
 if (num > 5) {
-    print("El número es mayor que 5")
+    print("El número es mayor que 5");
 } else {
-    print("El número es menor o igual a 5")
+    print("El número es menor o igual a 5");
 }
 
 
-
-################
-
-
-let matrizA = [[1, 2], [3, 4]]
-let matrizB = [[5, 6], [7, 8]]
-
-let sumaMatrices = addMatrix(matrizA, matrizB)
-let productoMatrices = multiplyMatrix(matrizA, matrizB)
-
-print("Suma de matrices:")
-print(sumaMatrices)
-
-print("Producto de matrices:")
-print(productoMatrices)
-
-let transpuesta = transposeMatrix(matrizA)
-print("Transpuesta de matrizA:")
-print(transpuesta)
+# Operaciones con matrices
 
 
-##############
+let matrizA = [[1, 2], [3, 4]];
+let matrizB = [[5, 6], [7, 8]];
+
+let suma = addMatrix(matrizA, matrizB);
+let producto = multiplyMatrix(matrizA, matrizB);
+let transpuesta = transposeMatrix(matrizA);
+
+print("Suma de matrices:");
+print(suma);
+
+print("Producto de matrices:");
+print(producto);
+
+print("Transpuesta de matrizA:");
+print(transpuesta);
 
 
-let data_csv = loadCSV("data.csv")
-let text = readFile("data.txt")
-print(data_csv)
-print(text)
+# Manejo de archivos
 
-let data = loadCSV("data.csv")
+let data_csv = loadCSV("data.csv");
+let text = readFile("data.txt");
+
+print("Datos del CSV:");
+print(data_csv);
+
+print("Contenido del archivo de texto:");
+print(text);
+
+---
+
+let data = loadCSV("data.csv");
+
+print("Filas del CSV:");
 for row in data {
-    print(row)
+    print(row);
 }
 
-let lines = readFile("data.txt")
+let lines = readFile("data.txt");
 for line in lines {
     if (line == "Línea B") {
-        print(line)
+        print("Encontrada:");
+        print(line);
     }
 }
 
 
-##############
+# Visualizacion
+
+let x = [1, 2, 3, 4, 5];
+let y = [10, 20, 30, 40, 50];
+
+plotLine(x, y);
 
 
-let x = [1, 2, 3, 4, 5]
-let y = [10, 20, 30, 40, 50]
-plotLine(x, y)
+---
 
+let data = loadCSV("data.csv");
+let x = data[0];
+let y = data[1];
 
-let data = loadCSV("data.csv")
-let x = data[0]
-let y = data[1]
-plotLine(x, y)
-
-
-###############
-
-
-let X = [[1], [2], [3], [4], [5]]
-let y = [2, 4, 6, 8, 10]
-let beta = linearRegressionFit(X, y)
-print("Coeficientes:")
-print(beta)
-
-
-let X_test = [[6], [7], [8]]
-let predictions = linearRegressionPredict(X_test, beta)
-print("Predicciones:")
-print(predictions)
-
-
-###
-
-
-let X_train = [[1], [2], [3], [4]]
-let y_train = [2, 4, 6, 8]
-let X_test = [[5], [6], [7]]
-let beta = linearRegressionFit(X_train, y_train)
-let y_pred = linearRegressionPredict(X_test, beta)
-print("Resultados:")
-print(y_pred)
-
-# Graficar
-let X_full = [1, 2, 3, 4, 5, 6, 7]  # Combina entrenamiento y prueba
-let y_full = [2, 4, 6, 8] + y_pred  # Combina predicciones y valores reales
-plotLine(X_full, y_full)
+plotLine(x, y);
 
 
 
-###############
+# Regresion Lineal
+
+let X = [[1], [2], [3], [4], [5]];
+let y = [2, 4, 6, 8, 10];
+
+let beta = linearRegressionFit(X, y);
+
+print("Coeficientes:");
+print(beta);
+
+let X_test = [[6], [7], [8]];
+let predictions = linearRegressionPredict(X_test, beta);
+
+print("Predicciones:");
+print(predictions);
+
+---
 
 
+let X_train = [1, 2, 3, 4];
+let y_train = [2, 4, 6, 8];
+let y_pred = linearRegressionPredict([[5], [6], [7]], beta);
 
-let X = [[0, 0], [0, 1], [1, 0], [1, 1]]
-let y = [[0], [1], [1], [0]]  # XOR
-let model = mlpFit(X, y, 4, 0.1, 1000)
-print("Modelo entrenado:")
-print(model)
+let X_full = X_train + [5, 6, 7];
+let y_full = y_train + y_pred;
+
+plotLine(X_full, y_full);
 
 
-let X_test = [[0, 0], [0, 1], [1, 0], [1, 1]]
-let predictions = mlpPredict(X_test, model)
-print("Predicciones:")
-print(predictions)
+# Red Neuronal Multicapa
 
-###
+let X = [[0, 0], [0, 1], [1, 0], [1, 1]];
+let y = [[0], [1], [1], [0]];
 
-let X = [[0, 0], [0, 1], [1, 0], [1, 1]]
-let y = [[0], [1], [1], [0]]
-let model = mlpFit(X, y, 4, 0.1, 2000)
-let test = [[0, 0], [0, 1], [1, 0], [1, 1]]
-let predictions = mlpPredict(test, model)
-print("Clasificación XOR:")
-print(predictions)
+let model = mlpFit(X, y, 4, 0.1, 1000);
 
-# Graficar predicciones XOR (si plotLine no admite matrices 2D, simplifica la entrada)
-let x_vals = [0, 0, 1, 1]  # Primera columna de X
-let y_vals = [0, 1, 0, 1]  # Segunda columna de X
-plotLine(x_vals, predictions)
+print("Modelo entrenado:");
+print(model);
 
-################
+let predictions = mlpPredict(X, model);
 
+print("Predicciones XOR:");
+print(predictions);
+
+
+# Aleatorios
 
 let a = random(0, 10, 5);
+
+print("Números aleatorios:");
 print(a);
+
+
