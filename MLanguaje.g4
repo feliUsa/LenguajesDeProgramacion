@@ -20,6 +20,7 @@ variableDeclaration: ( 'let' )? ID (',' ID)* '=' expression (NEWLINE | EOF | SEM
 
 printStatement: 'print' '(' (STRING | expression) ')' (NEWLINE | EOF | SEMI);
 
+
 ifStatement
     : 'if' '(' condition ')' '{' statement* '}' ('else' '{' statement* '}')?
     ;
@@ -86,8 +87,10 @@ visualization
     | plotDataFrame
     | plotDataFrameHuge
     | plotRegressionLine
+    | plotMLPPredictions
     ;
 
+plotMLPPredictions: 'plotMLPPredictions' '(' expression ',' expression ',' expression ',' expression ')';
 plotRegressionLine: 'plotRegressionLine' '(' expression ',' expression ',' expression ',' expression ')';
 plotDataFrameHuge: 'plotDataFrameHuge' '(' expression ',' STRING ',' STRING (',' STRING)? ')';
 plotDataFrame: 'plotDataFrame' '(' expression ',' STRING ',' STRING (',' STRING)? ')';

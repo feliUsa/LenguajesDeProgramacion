@@ -100,55 +100,98 @@ def linear_regression_predict(X, m, b, decimals=4):
     return [float(round(pred, decimals)) for pred in predictions]
 
 
+def initialize_weights(input_neurons, hidden_neurons, output_neurons):
+    """
+    Inicializa los pesos y sesgos para el MLP.
+    """
+    np.random.seed(42)  # Para reproducibilidad
+    W1 = np.random.randn(input_neurons, hidden_neurons) * 0.01
+    b1 = np.zeros((1, hidden_neurons))
+    W2 = np.random.randn(hidden_neurons, output_neurons) * 0.01
+    b2 = np.zeros((1, output_neurons))
+    return W1, b1, W2, b2
+
+
+# Gradiente descendiente
+# Derivadas parciales con rspecto a los pesos (w1, w2) y segos (b1, b2)
+# predicciones
+def forward_pass(X, W1, b1, W2, b2):
+    """
+    Realiza el paso hacia adelante (forward pass).
+    """
+    Z1 = X @ W1 + b1  # Capa oculta
+    A1 = np.tanh(Z1)  # Activación (tanh)
+    Z2 = A1 @ W2 + b2  # Capa de salida
+    A2 = 1 / (1 + np.exp(-Z2))  # Activación (sigmoide)
+    return Z1, A1, Z2, A2
+
+# gradientes
+def backward_pass(X, y, Z1, A1, A2, W2):
+    """
+    Calcula los gradientes para el paso hacia atrás (backward pass).
+    """
+    m = X.shape[0]  # Número de ejemplos
+    dZ2 = A2 - y  # Error en la salida
+    dW2 = A1.T @ dZ2 / m
+    db2 = np.sum(dZ2, axis=0, keepdims=True) / m
+    dZ1 = (dZ2 @ W2.T) * (1 - np.power(A1, 2))  # Derivada de tanh
+    dW1 = X.T @ dZ1 / m
+    db1 = np.sum(dZ1, axis=0, keepdims=True) / m
+    return dW1, db1, dW2, db2
+
+
+# Actualizar pesos
+def update_weights(W1, b1, W2, b2, dW1, db1, dW2, db2, learning_rate):
+    """
+    Actualiza los pesos y sesgos usando gradiente descendente.
+    """
+    W1 -= learning_rate * dW1
+    b1 -= learning_rate * db1
+    W2 -= learning_rate * dW2
+    b2 -= learning_rate * db2
+    return W1, b1, W2, b2
+
+
 def mlp_fit(X, y, hidden_neurons=10, learning_rate=0.01, epochs=1000):
     """
     Entrena un perceptrón multicapa (MLP) con una capa oculta.
     """
-    np.random.seed(42)  # Para reproducibilidad
     X = np.array(X)
     y = np.array(y).reshape(-1, 1)
     input_neurons = X.shape[1]
     output_neurons = y.shape[1]
 
     # Inicialización de pesos
-    W1 = np.random.randn(input_neurons, hidden_neurons) * 0.01
-    b1 = np.zeros((1, hidden_neurons))
-    W2 = np.random.randn(hidden_neurons, output_neurons) * 0.01
-    b2 = np.zeros((1, output_neurons))
+    W1, b1, W2, b2 = initialize_weights(input_neurons, hidden_neurons, output_neurons)
 
+    # Entrenamiento
     for epoch in range(epochs):
-        # Forward pass
-        Z1 = X @ W1 + b1
-        A1 = np.tanh(Z1)
-        Z2 = A1 @ W2 + b2
-        A2 = 1 / (1 + np.exp(-Z2))  # Sigmoide
+        # Paso hacia adelante
+        Z1, A1, Z2, A2 = forward_pass(X, W1, b1, W2, b2)
 
-        # Backward pass
-        dZ2 = A2 - y
-        dW2 = A1.T @ dZ2
-        db2 = np.sum(dZ2, axis=0, keepdims=True)
-        dZ1 = (dZ2 @ W2.T) * (1 - np.power(A1, 2))
-        dW1 = X.T @ dZ1
-        db1 = np.sum(dZ1, axis=0, keepdims=True)
+        # Paso hacia atrás
+        dW1, db1, dW2, db2 = backward_pass(X, y, Z1, A1, A2, W2)
 
         # Actualización de pesos
-        W1 -= learning_rate * dW1
-        b1 -= learning_rate * db1
-        W2 -= learning_rate * dW2
-        b2 -= learning_rate * db2
+        W1, b1, W2, b2 = update_weights(W1, b1, W2, b2, dW1, db1, dW2, db2, learning_rate)
 
-    return {"W1": W1.tolist(), "b1": b1.tolist(), "W2": W2.tolist(), "b2": b2.tolist()}
+        # Imprimir error cada 100 épocas
+        if (epoch + 1) % 100 == 0:
+            loss = np.mean((y - A2) ** 2)  # Error cuadrático medio
+            print(f"Época {epoch + 1}/{epochs}, Error: {loss:.4f}")
+
+    return {"W1": W1, "b1": b1, "W2": W2, "b2": b2}
+
 
 def mlp_predict(X, model):
     """
     Realiza predicciones con un modelo de MLP entrenado.
     """
     X = np.array(X)
-    Z1 = X @ np.array(model["W1"]) + np.array(model["b1"])
-    A1 = np.tanh(Z1)
-    Z2 = A1 @ np.array(model["W2"]) + np.array(model["b2"])
-    A2 = 1 / (1 + np.exp(-Z2))  # Sigmoide
+    W1, b1, W2, b2 = model["W1"], model["b1"], model["W2"], model["b2"]
+    _, _, _, A2 = forward_pass(X, W1, b1, W2, b2)
     return A2.tolist()
+
 
 
 def generate_random_values(start, end, size=1):
@@ -166,8 +209,9 @@ def calculate_metrics(y_true, y_pred):
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
     mse = np.mean((y_true - y_pred) ** 2)
-    return {"mse": round(mse, 4)}
-
+    mae = np.mean(np.abs(y_true - y_pred))
+    r2 = 1 - (np.sum((y_true - y_pred) ** 2) / np.sum((y_true - np.mean(y_true)) ** 2))
+    return {"mse": round(mse, 4), "mae": round(mae, 4), "r2": round(r2, 4)}
 
 
 def length_custom(obj):
@@ -216,4 +260,36 @@ def plot_dataframe(df, x_column, y_column, kind="line"):
     else:
         raise ValueError(f"Tipo de gráfico no soportado: {kind}")
 
+    plt.show()
+
+
+def plotMLPPredictions(X_train, y_train, X_test, y_pred, title="MLP Predictions"):
+    """
+    Grafica los datos de entrenamiento, prueba y las predicciones realizadas por el MLP.
+    :param X_train: Datos de entrada de entrenamiento (2D list or array).
+    :param y_train: Etiquetas de entrenamiento (1D list or array).
+    :param X_test: Datos de entrada de prueba (2D list or array).
+    :param y_pred: Predicciones del modelo (1D list or array).
+    :param title: Título opcional para el gráfico.
+    """
+    X_train = np.array(X_train)
+    y_train = np.array(y_train)
+    X_test = np.array(X_test)
+    y_pred = np.array(y_pred)
+
+    # Verificar dimensiones
+    if X_train.shape[1] != 2 or X_test.shape[1] != 2:
+        raise ValueError("[ERROR] Solo se soportan gráficos para entradas de dimensión 2.")
+
+    # Graficar datos de entrenamiento
+    plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap="viridis", label="Entrenamiento")
+
+    # Graficar predicciones
+    plt.scatter(X_test[:, 0], X_test[:, 1], c=y_pred, cmap="coolwarm", label="Predicciones", marker='x')
+
+    plt.title(title)
+    plt.xlabel("X1")
+    plt.ylabel("X2")
+    plt.legend()
+    plt.colorbar(label="Valor Predicho")
     plt.show()

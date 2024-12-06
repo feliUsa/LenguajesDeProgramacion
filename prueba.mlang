@@ -1,2 +1,12 @@
-let df = loadCSVBig("Tasa de cambio del peso colombiano.csv")
-plotDataFrameHuge(df, "Columna_0", "Columna_1", "line")
+let X_train = [[0.1, 0.2], [0.2, 0.4], [0.4, 0.6], [0.5, 0.8]];
+let y_train = [0, 0, 1, 1];
+
+let model = mlpFit(X_train, y_train, 5, 0.01, 1000);
+
+let X_test = [[0.3, 0.5], [0.6, 0.9]];
+let predictions = mlpPredict(X_test, model);
+
+print(predictions)
+
+# Graficar las predicciones
+plotMLPPredictions(X_train, y_train, X_test, predictions);

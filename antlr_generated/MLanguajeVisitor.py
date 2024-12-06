@@ -74,6 +74,11 @@ class MLanguajeVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by MLanguajeParser#plotMLPPredictions.
+    def visitPlotMLPPredictions(self, ctx:MLanguajeParser.PlotMLPPredictionsContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by MLanguajeParser#plotRegressionLine.
     def visitPlotRegressionLine(self, ctx:MLanguajeParser.PlotRegressionLineContext):
         return self.visitChildren(ctx)

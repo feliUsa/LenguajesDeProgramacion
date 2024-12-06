@@ -125,6 +125,15 @@ class MLanguajeListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by MLanguajeParser#plotMLPPredictions.
+    def enterPlotMLPPredictions(self, ctx:MLanguajeParser.PlotMLPPredictionsContext):
+        pass
+
+    # Exit a parse tree produced by MLanguajeParser#plotMLPPredictions.
+    def exitPlotMLPPredictions(self, ctx:MLanguajeParser.PlotMLPPredictionsContext):
+        pass
+
+
     # Enter a parse tree produced by MLanguajeParser#plotRegressionLine.
     def enterPlotRegressionLine(self, ctx:MLanguajeParser.PlotRegressionLineContext):
         pass

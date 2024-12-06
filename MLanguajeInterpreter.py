@@ -1,8 +1,9 @@
 # MLanguajeInterpreter.py
 
 from antlr_generated.MLanguajeVisitor import MLanguajeVisitor
+from antlr_generated.MLanguajeParser import MLanguajeParser
 from custom_library import read_csv_custom, read_txt_custom
-from custom_library import linear_regression_fit, linear_regression_predict, mlp_fit, mlp_predict, calculate_metrics, generate_random_values, length_custom, plot_dataframe, read_csv_custom_big
+from custom_library import linear_regression_fit, linear_regression_predict, mlp_fit, mlp_predict, calculate_metrics, generate_random_values, length_custom, plot_dataframe, read_csv_custom_big, plotMLPPredictions
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -58,7 +59,6 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             value = self.visit(ctx.expression())
             #print(f"[DEBUG] Imprimiendo expresión evaluada: {value}")
             print(value)
-
 
 
     def visitExpression(self, ctx):
@@ -344,16 +344,23 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
                 return linear_regression_predict(X, m, b)
 
             elif operation == "mlpFit":
-                X = self.visit(ctx.expression(0))
-                y = self.visit(ctx.expression(1))
-                hidden_neurons = self.visit(ctx.expression(2)) if ctx.expression(2) else 10
-                learning_rate = self.visit(ctx.expression(3)) if ctx.expression(3) else 0.01
-                return mlp_fit(X, y, hidden_neurons, learning_rate)
+                # Obtener parámetros de mlpFit
+                X = self.visit(ctx.expression(0))  # Datos de entrada (X)
+                y = self.visit(ctx.expression(1))  # Etiquetas (y)
+                hidden_neurons = self.visit(ctx.expression(2)) if ctx.expression(2) else 10  # Neuronas ocultas (opcional)
+                learning_rate = self.visit(ctx.expression(3)) if ctx.expression(3) else 0.01  # Tasa de aprendizaje (opcional)
+                epochs = self.visit(ctx.expression(4)) if ctx.expression(4) else 1000  # Épocas (opcional)
+
+                # Llamar a la función mlp_fit
+                return mlp_fit(X, y, hidden_neurons, learning_rate, epochs)
+
             elif operation == "mlpPredict":
-                X = self.visit(ctx.expression(0))
-                model = self.visit(ctx.expression(1))
+                # Obtener parámetros de mlpPredict
+                X = self.visit(ctx.expression(0))  # Nuevos datos de entrada
+                model = self.visit(ctx.expression(1))  # Modelo entrenado
+
+                # Llamar a la función mlp_predict
                 return mlp_predict(X, model)
-            
             
             elif operation == "calculateMetrics":
                 y_true = self.visit(ctx.expression(0))
@@ -427,6 +434,12 @@ class MLanguajeVisitorImplementation(MLanguajeVisitor):
             self.visitPlotDataFrame(ctx.plotDataFrame())
         elif ctx.plotDataFrameHuge():
             self.visitPlotDataFrameHuge(ctx.plotDataFrameHuge())
+        elif ctx.plotMLPPredictions():
+            X_train = self.visit(ctx.plotMLPPredictions().expression(0))
+            y_train = self.visit(ctx.plotMLPPredictions().expression(1))
+            X_test = self.visit(ctx.plotMLPPredictions().expression(2))
+            y_pred = self.visit(ctx.plotMLPPredictions().expression(3))
+            plotMLPPredictions(X_train, y_train, X_test, y_pred)
         else:
             raise ValueError("[ERROR] Tipo de visualización desconocido.")
 
